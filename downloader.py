@@ -1,6 +1,10 @@
+import os
+
 from yt_dlp import YoutubeDL
 import uuid
 from filehandler import FileHandler
+from moviepy import *
+from PIL import Image
 
 
 class VideoDownload:
@@ -29,6 +33,9 @@ class VideoDownload:
             params["playlist_items"] = "1:1"
             url = f"https://www.youtube.com/results?search_query={self.url.replace(" ", "+")}+%22topic%22"
 
+        album = "Song Album"
+        title = "Song Title"
+        artist = "Unknown Artist"
         with YoutubeDL(params) as ydl:
             info = ydl.extract_info(url, download=False)
             ydl.download([url])
@@ -37,6 +44,16 @@ class VideoDownload:
             album = desc.split("\n")[4]
             title = titleLine[0].strip()
             artist = titleLine[1].strip()
-            print(title, artist, album)
 
+        with open(f"{FileHandler.SONG_DATA}/{uid}.txt", "w") as f:
+            f.write(f"{title}\n{artist}\n{album}")
+
+        videoFile = ""
+        for file in os.listdir(f"{FileHandler.TEMP_VID_STORAGE}/{uid}/"):
+            if file != ".DS_Store":
+                videoFile = file
+        clip = VideoFileClip(f"{FileHandler.TEMP_VID_STORAGE}/{uid}/{videoFile}")
+        clip.audio.write_audiofile(f"{FileHandler.AUDIOS}/{uid}.mp3")
+        img = Image.fromarray(clip.get_frame(0))
+        img.save(f"{FileHandler.SONG_DATA}/{uid}.png")
 
