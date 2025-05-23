@@ -13,6 +13,7 @@ class VideoDownload:
         self.search = search
         self.finished = False
         self._downloading = False
+        self.uid = ""
 
     def _generate_uuid(self):
         return str(uuid.uuid4()).replace("-", "")
@@ -24,6 +25,7 @@ class VideoDownload:
 
     def _download(self):
         uid = self._generate_uuid()
+        self.uid = uid
         params = {
             "quiet":True,
             "paths":{"home":f"{FileHandler.TEMP_VID_STORAGE}/{uid}/", "temp":f"{FileHandler.TEMP_VID_STORAGE}/{uid}/"}
@@ -45,9 +47,6 @@ class VideoDownload:
             title = titleLine[0].strip()
             artist = titleLine[1].strip()
 
-        with open(f"{FileHandler.SONG_DATA}/{uid}.txt", "w") as f:
-            f.write(f"{title}\n{artist}\n{album}")
-
         videoFile = ""
         for file in os.listdir(f"{FileHandler.TEMP_VID_STORAGE}/{uid}/"):
             if file != ".DS_Store":
@@ -56,4 +55,11 @@ class VideoDownload:
         clip.audio.write_audiofile(f"{FileHandler.AUDIOS}/{uid}.mp3")
         img = Image.fromarray(clip.get_frame(0))
         img.save(f"{FileHandler.SONG_DATA}/{uid}.png")
+
+        with open(f"{FileHandler.SONG_DATA}/{uid}.txt", "w") as f:
+            f.write(f"{title}\n{artist}\n{album}\n{clip.duration}")
+
+        self.finished = True
+        self._downloading = False
+
 
