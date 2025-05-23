@@ -3,5 +3,6 @@ from filehandler import FileHandler
 
 FileHandler.check_folder()
 
-a = VideoDownload("marry you", search=True)
+a = VideoDownload("idol yoasobi", search=True)
 a.download()
+print(a.uid)
