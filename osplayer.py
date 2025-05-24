@@ -1,3 +1,5 @@
+import uuid
+
 from Foundation import NSURL, NSRunLoop, NSDate, NSNumber, NSString
 from AVFoundation import AVAudioPlayer, AVAudioSession
 from MediaPlayer import (
@@ -16,6 +18,9 @@ from AppKit import NSImage, NSApplication
 from filehandler import FileHandler
 import time
 
+from playlist import Playlist
+
+
 class OSPlayer:
     def __init__(self):
         self.player = None
@@ -27,6 +32,9 @@ class OSPlayer:
         self.duration = 0.0
         self.artwork = None
         self.uid = ""
+        self.playing_song = False
+        self.playlist = None
+        self.paused = False
         self._setup_remote_commands()
         self._setup_audio_session()
 
@@ -46,9 +54,9 @@ class OSPlayer:
         self.command_center.playCommand().setEnabled_(True)
         self.command_center.pauseCommand().setEnabled_(True)
         self.command_center.togglePlayPauseCommand().setEnabled_(True)
-        self.command_center.nextTrackCommand().setEnabled_(False)
-        self.command_center.previousTrackCommand().setEnabled_(False)
 
+        self.command_center.nextTrackCommand().setEnabled_(True)
+        self.command_center.previousTrackCommand().setEnabled_(True)
         # Enable seeking and skip commands
         self.command_center.changePlaybackPositionCommand().setEnabled_(True)
         self.command_center.skipForwardCommand().setEnabled_(True)
@@ -65,6 +73,9 @@ class OSPlayer:
         self.command_center.changePlaybackPositionCommand().addTargetWithHandler_(self._handle_seek)
         self.command_center.skipForwardCommand().addTargetWithHandler_(self._handle_skip_forward)
         self.command_center.skipBackwardCommand().addTargetWithHandler_(self._handle_skip_backward)
+        self.command_center.nextTrackCommand().addTargetWithHandler_(self._handle_next_track)
+        self.command_center.previousTrackCommand().addTargetWithHandler_(self._handle_previous_track)
+
 
     def _generate_info(self):
         if not self.player:
@@ -84,9 +95,26 @@ class OSPlayer:
 
         return info
 
-    def play(self, uid):
+    def play(self, song_or_playlist):
+        if isinstance(song_or_playlist, Playlist):
+            self.playing_song = False
+            self.playlist = song_or_playlist
+            self.command_center.skipForwardCommand().setEnabled_(False)
+            self.command_center.skipBackwardCommand().setEnabled_(False)
+            return self.play_song(self.playlist.request_next_track())
+
+        else:
+            self.playing_song = True
+            self.command_center.skipForwardCommand().setEnabled_(True)
+            self.command_center.skipBackwardCommand().setEnabled_(True)
+            return self.play_song(song_or_playlist)
+
+    def play_song(self, uid):
         self.uid = uid
         file_url = NSURL.fileURLWithPath_(f"{FileHandler.AUDIOS}/{uid}.mp3")
+
+        if self.player and self.player.isPlaying():
+            self.player.stop()
 
         # Create and play the audio player
         self.player = AVAudioPlayer.alloc().initWithContentsOfURL_error_(file_url, None)[0]
@@ -123,6 +151,7 @@ class OSPlayer:
 
         # Start playback
         self.player.play()
+        self.paused = False
 
         # Update Now Playing info
         self.update_now_playing()
@@ -139,12 +168,14 @@ class OSPlayer:
         if self.player and not self.player.isPlaying():
             self.player.play()
             self.update_now_playing()
+            self.paused = False
         return 0  # Return 0 for success
 
     def _handle_pause(self, event):
         if self.player and self.player.isPlaying():
             self.player.pause()
             self.update_now_playing()
+            self.paused = True
         return 0  # Return 0 for success
 
     def _handle_toggle_play_pause(self, event):
@@ -155,7 +186,7 @@ class OSPlayer:
             self.player.pause()
         else:
             self.player.play()
-
+        self.paused = not self.paused
         self.update_now_playing()
         return 0  # Return 0 for success
 
@@ -227,32 +258,61 @@ class OSPlayer:
             print(f"Error skipping backward: {e}")
             return 1
 
+    def _handle_next_track(self, event):
+        if not self.player:
+            return 1
+
+        try:
+            if not self.playing_song:
+                self.play_song(self.playlist.request_next_track())
+            return 0
+        except Exception as e:
+            print(f"Error skipping backward: {e}")
+            return 1
+
+
+    def _handle_previous_track(self, event):
+        if not self.player:
+            return 1
+
+        try:
+            if not self.playing_song:
+                self.play_song(self.playlist.request_last_track(self.player.currentTime()))
+            return 0
+        except Exception as e:
+            print(f"Error skipping forward: {e}")
+            return 1
+
+    def update(self):
+        self.update_now_playing()
+        if self.player and not self.player.isPlaying() and not self.paused:
+            if not self.playing_song:
+                self.play_song(self.playlist.request_next_track())
+
+
+playlist = Playlist.create_playlist("test", "/Users/hanyangliu/Regular.png", ["7154757342874e538d44ee98c537a192",
+                                                                              "c2d8a21d25954e08a2ae67b3d1511910",
+                                                                              "de507e9c06d04b9ba222de63690ff1f8",
+                                                                              "f23dd58ff1344317a2f4c7c0e531b6da",
+                                                                              "b632791950294a3c95b624a532bae3b0",
+                                                                              "6fd8a7ed1d32400f9bee52c8ffb34efd",
+                                                                              "db42cd5ed6574f42a580698b10177c31",
+                                                                              "9fbd5ca591a7435a86944e5f9131ce6f"], True)
+playlist.save()
 # Usage
 if __name__ == "__main__":
     player = OSPlayer()
 
-    if player.play("c2d8a21d25954e08a2ae67b3d1511910"):
-        print("Playback started successfully")
-        print("Media controls now support:")
-        print("- Play/Pause keys")
-        print("- Time scrubbing/seeking")
-        print("- Skip forward/backward (15 second intervals)")
-        print("- Control Center integration")
-
+    if player.play(playlist):
         # Keep the app running and update Now Playing info periodically
         try:
             while True:
-                player.update_now_playing()
 
+                player.update()
                 # Run the event loop for a short time to handle system events
                 NSRunLoop.currentRunLoop().runUntilDate_(
                     NSDate.dateWithTimeIntervalSinceNow_(0.5)
                 )
-
-                # Optional: Check if playback has finished
-                if player.player and not player.player.isPlaying() and player.player.currentTime() >= player.duration:
-                    print("Playback finished")
-                    break
 
         except KeyboardInterrupt:
             print("Stopping playback...")

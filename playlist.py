@@ -1,4 +1,6 @@
+import random
 import shutil
+import uuid
 from operator import truediv
 
 from filehandler import FileHandler
@@ -12,6 +14,8 @@ class Playlist:
         self._name = ""
         self._image_url = ""
         self._changed = False
+        self._index = 0
+        self.last_tracks = []
 
     def add_song(self, song_id):
         self._songs.append(song_id)
@@ -29,10 +33,13 @@ class Playlist:
         self._image_url = url
         self._changed = True
 
+    def set_index(self, index):
+        self._index = index
+        self._changed = True
 
     def save(self):
         with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt", "w") as f:
-            f.writelines([self._name, 1 if self._shuffle else 0, ""] + self._songs)
+            f.write("\n".join([self._name, str(1 if self._shuffle else 0), str(self._index), ""] + self._songs))
 
         if self._image_url != "" and not self._image_url.startswith(self.uid):
             shutil.copyfile(self._image_url, f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png")
@@ -69,6 +76,9 @@ class Playlist:
                 instance._shuffle = True if line == "1" else False
 
             elif index == 2:
+                instance._index = int(line)
+
+            elif index == 3:
                 pass
 
             else:
@@ -76,5 +86,47 @@ class Playlist:
 
         instance._image_url = f"{FileHandler.PLAYLIST_DATA}/{uid}.png"
         instance._changed = False
+
+        return instance
+
+    def request_next_track(self):
+        self.last_tracks.append(self._index)
+        if self._shuffle:
+            attempts = 3
+            while self._index in self.last_tracks and attempts > 0:
+                self.set_index(random.randint(0, len(self._songs)-1))
+                attempts -= 1
+
+        else:
+            i = self._index
+            i+=1
+            i%= len(self._songs)
+            self.set_index(i)
+
+        return self._songs[self._index]
+
+    def request_last_track(self, duration):
+        if duration > 5:
+            return self._songs[self._index]
+
+        else:
+            if len(self.last_tracks) == 0:
+                self.set_index(0)
+                return self._songs[0]
+
+            else:
+                self.set_index(self.last_tracks.pop(len(self.last_tracks)-1))
+                return self._songs[self._index]
+
+    @classmethod
+    def create_playlist(cls, name, image_url, songs, shuffle):
+        instance = cls(str(uuid.uuid4()).replace("-", ""))
+        instance.set_name(name)
+        instance.set_image_url(image_url)
+        if shuffle:
+            instance.toggle_shuffle()
+
+        for song in songs:
+            instance.add_song(song)
 
         return instance
