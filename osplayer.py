@@ -1,5 +1,3 @@
-import uuid
-
 from Foundation import NSURL, NSRunLoop, NSDate, NSNumber, NSString
 from AVFoundation import AVAudioPlayer, AVAudioSession
 from MediaPlayer import (
@@ -16,8 +14,6 @@ from MediaPlayer import (
 )
 from AppKit import NSImage, NSApplication
 from filehandler import FileHandler
-import time
-
 from playlist import Playlist
 
 
@@ -284,35 +280,24 @@ class OSPlayer:
             return 1
 
     def update(self):
+        NSRunLoop.currentRunLoop().runUntilDate_(
+            NSDate.dateWithTimeIntervalSinceNow_(0.5)
+        )
         self.update_now_playing()
         if self.player and not self.player.isPlaying() and not self.paused:
             if not self.playing_song:
                 self.play_song(self.playlist.request_next_track())
 
-
-playlist = Playlist.create_playlist("test", "/Users/hanyangliu/Regular.png", ["7154757342874e538d44ee98c537a192",
-                                                                              "c2d8a21d25954e08a2ae67b3d1511910",
-                                                                              "de507e9c06d04b9ba222de63690ff1f8",
-                                                                              "f23dd58ff1344317a2f4c7c0e531b6da",
-                                                                              "b632791950294a3c95b624a532bae3b0",
-                                                                              "6fd8a7ed1d32400f9bee52c8ffb34efd",
-                                                                              "db42cd5ed6574f42a580698b10177c31",
-                                                                              "9fbd5ca591a7435a86944e5f9131ce6f"], True)
-playlist.save()
 # Usage
 if __name__ == "__main__":
+    playlist = Playlist.load("0a4543711e9448f59c43e70940d9dde8")
     player = OSPlayer()
 
     if player.play(playlist):
         # Keep the app running and update Now Playing info periodically
         try:
             while True:
-
                 player.update()
-                # Run the event loop for a short time to handle system events
-                NSRunLoop.currentRunLoop().runUntilDate_(
-                    NSDate.dateWithTimeIntervalSinceNow_(0.5)
-                )
 
         except KeyboardInterrupt:
             print("Stopping playback...")

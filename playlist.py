@@ -92,9 +92,11 @@ class Playlist:
     def request_next_track(self):
         self.last_tracks.append(self._index)
         if self._shuffle:
-            attempts = 3
-            while self._index in self.last_tracks and attempts > 0:
+            attempts = 15
+            while attempts > 0:
                 self.set_index(random.randint(0, len(self._songs)-1))
+                if self._index not in self.last_tracks:
+                    break
                 attempts -= 1
 
         else:
