@@ -280,9 +280,6 @@ class OSPlayer:
             return 1
 
     def update(self):
-        NSRunLoop.currentRunLoop().runUntilDate_(
-            NSDate.dateWithTimeIntervalSinceNow_(0.5)
-        )
         self.update_now_playing()
         if self.player and not self.player.isPlaying() and not self.paused:
             if not self.playing_song:
@@ -297,6 +294,9 @@ if __name__ == "__main__":
         # Keep the app running and update Now Playing info periodically
         try:
             while True:
+                NSRunLoop.currentRunLoop().runUntilDate_(
+                        NSDate.dateWithTimeIntervalSinceNow_(0.1)
+                    )
                 player.update()
 
         except KeyboardInterrupt:
