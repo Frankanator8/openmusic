@@ -1,7 +1,8 @@
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QScrollArea
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QScrollArea, QLabel
 
 from gui.songWidget import SongWidget
+from gui.songmenu import SongMenu
 
 
 class LeftMenu(QWidget):
@@ -9,7 +10,17 @@ class LeftMenu(QWidget):
         super().__init__()
         self.layout = QVBoxLayout()
         splitter = QSplitter(Qt.Vertical)
-        splitter.addWidget(SongWidget("7154757342874e538d44ee98c537a192"))
+
+        self.topWidget = QWidget()
+        topMenu = QVBoxLayout()
+        top = QLabel()
+        top.setText("Song Library")
+        scrollArea = QScrollArea()
+        scrollArea.setWidget(SongMenu())
+        topMenu.addWidget(top)
+        topMenu.addWidget(scrollArea)
+        self.topWidget.setLayout(topMenu)
+        splitter.addWidget(self.topWidget)
         splitter.addWidget(QScrollArea())
         self.layout.addWidget(splitter)
         self.setLayout(self.layout)

@@ -1,5 +1,6 @@
+from PySide6.QtCore import QSize
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QLayout
 
 from filehandler import FileHandler
 
@@ -13,6 +14,8 @@ class SongWidget(QWidget):
         self.layout = QHBoxLayout()
         self.albumCover = QLabel()
         self.albumCover.setPixmap(QPixmap(image_url))
+        self.albumCover.setMaximumSize(QSize(64, 64))
+        self.albumCover.setScaledContents(True)
 
         self.title = QLabel()
         self.title.setText(title)
@@ -23,7 +26,8 @@ class SongWidget(QWidget):
         textLayout = QVBoxLayout()
         textLayout.addWidget(self.title)
         textLayout.addWidget(self.artistAndAlbum)
-        # self.layout.addLayout(textLayout)
+        self.layout.addLayout(textLayout)
+        self.setLayout(self.layout)
 
     def load_data(self):
         image_url = f"{FileHandler.SONG_DATA}/{self.uid}.png"
