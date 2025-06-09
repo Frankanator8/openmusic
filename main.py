@@ -27,7 +27,7 @@ gui_timer = QTimer()
 gui_timer.timeout.connect(player.update)
 gui_timer.start(50)
 
-widget = MainGui()
+widget = MainGui(player)
 widget.show()
 
 app.exec()

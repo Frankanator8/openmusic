@@ -1,4 +1,4 @@
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QLayout
 
@@ -6,6 +6,7 @@ from filehandler import FileHandler
 
 
 class SongWidget(QWidget):
+    clicked = Signal(str)
     def __init__(self, uid):
         super().__init__()
         self.uid = uid
@@ -29,6 +30,13 @@ class SongWidget(QWidget):
         self.layout.addLayout(textLayout)
         self.setLayout(self.layout)
 
+        self.setCursor(Qt.PointingHandCursor)
+        self.setAttribute(Qt.WA_Hover)
+        self.setMouseTracking(True)
+        for child in self.findChildren(QLabel):
+            child.setCursor(Qt.PointingHandCursor)
+
+
     def load_data(self):
         image_url = f"{FileHandler.SONG_DATA}/{self.uid}.png"
         with open(f"{FileHandler.SONG_DATA}/{self.uid}.txt") as f:
@@ -37,3 +45,8 @@ class SongWidget(QWidget):
             album = f.readline().strip()
 
         return image_url, title, artist, album
+
+    def mousePressEvent(self, event):
+        """Called when the widget is clicked"""
+        self.clicked.emit(self.uid)  # Emit the signal
+        super().mousePressEvent(event)  # Call parent class implementation

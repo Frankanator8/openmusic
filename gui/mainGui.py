@@ -4,7 +4,7 @@ from gui.leftMenu import LeftMenu
 
 
 class MainGui(QWidget):
-    def __init__(self):
+    def __init__(self, osPlayer):
         super().__init__()
         self.setWindowTitle("OpenMusic")
         self.showFullScreen()
@@ -12,7 +12,7 @@ class MainGui(QWidget):
         splitter = QSplitter()
 
         self.layout.addWidget(splitter)
-        splitter.addWidget(LeftMenu())
+        splitter.addWidget(LeftMenu(osPlayer))
         splitter.addWidget(QScrollArea())
         splitter.addWidget(QScrollArea())
 
