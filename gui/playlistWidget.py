@@ -45,3 +45,9 @@ class PlaylistWidget(QWidget):
         """Called when the widget is clicked"""
         self.clicked.emit(self.uid)  # Emit the signal
         super().mousePressEvent(event)  # Call parent class implementation
+
+    def updateUID(self, uid):
+        self.uid = uid
+        image_url, title = self.load_data()
+        self.albumCover.setPixmap(QPixmap(image_url))
+        self.title.setText(title)

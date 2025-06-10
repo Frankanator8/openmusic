@@ -27,6 +27,7 @@ class OSPlayer:
         self.album = ""
         self.duration = 0.0
         self.artwork = None
+        self.artwork_path = ""
         self.uid = ""
         self.playing_song = False
         self.playlist = None
@@ -134,6 +135,7 @@ class OSPlayer:
 
         # Load artwork
         artwork_path = f"{FileHandler.SONG_DATA}/{uid}.png"
+        self.artwork_path = artwork_path
         try:
             image = NSImage.alloc().initWithContentsOfFile_(artwork_path)
             if image:
@@ -178,13 +180,16 @@ class OSPlayer:
         if not self.player:
             return 1  # Return 1 for failure
 
+        self.toggle_play_pause()
+        return 0  # Return 0 for success
+
+    def toggle_play_pause(self):
         if self.player.isPlaying():
             self.player.pause()
         else:
             self.player.play()
         self.paused = not self.paused
         self.update_now_playing()
-        return 0  # Return 0 for success
 
     def _handle_seek(self, event):
         """Handle scrubbing/seeking to a specific position"""
@@ -195,20 +200,22 @@ class OSPlayer:
             # Get the requested playback position from the event
             requested_time = event.positionTime()
 
-            # Clamp the time to valid bounds
-            max_time = self.duration
-            seek_time = max(0.0, min(requested_time, max_time))
-
-            # Set the player's current time
-            self.player.setCurrentTime_(seek_time)
-
-            # Update Now Playing info immediately
-            self.update_now_playing()
+            self.seek(requested_time)
 
             return 0
         except Exception as e:
             print(f"Error seeking: {e}")
             return 1
+
+    def seek(self, time):
+        max_time = self.duration
+        seek_time = max(0.0, min(time, max_time))
+
+        # Set the player's current time
+        self.player.setCurrentTime_(seek_time)
+
+        # Update Now Playing info immediately
+        self.update_now_playing()
 
     def _handle_skip_forward(self, event):
         """Handle skip forward (fast forward) button"""
@@ -221,16 +228,19 @@ class OSPlayer:
             if hasattr(event, 'interval') and event.interval():
                 skip_interval = event.interval()
 
-            current_time = self.player.currentTime()
-            new_time = min(current_time + skip_interval, self.duration)
-
-            self.player.setCurrentTime_(new_time)
-            self.update_now_playing()
+            self.skip_forward(skip_interval)
 
             return 0
         except Exception as e:
             print(f"Error skipping forward: {e}")
             return 1
+
+    def skip_forward(self, time):
+        current_time = self.player.currentTime()
+        new_time = min(current_time + time, self.duration)
+
+        self.player.setCurrentTime_(new_time)
+        self.update_now_playing()
 
     def _handle_skip_backward(self, event):
         """Handle skip backward (rewind) button"""
@@ -243,28 +253,34 @@ class OSPlayer:
             if hasattr(event, 'interval') and event.interval():
                 skip_interval = event.interval()
 
-            current_time = self.player.currentTime()
-            new_time = max(current_time - skip_interval, 0.0)
-
-            self.player.setCurrentTime_(new_time)
-            self.update_now_playing()
+            self.skip_backward(skip_interval)
 
             return 0
         except Exception as e:
             print(f"Error skipping backward: {e}")
             return 1
+
+    def skip_backward(self, time):
+        current_time = self.player.currentTime()
+        new_time = max(current_time - time, 0.0)
+
+        self.player.setCurrentTime_(new_time)
+        self.update_now_playing()
 
     def _handle_next_track(self, event):
         if not self.player:
             return 1
 
         try:
-            if not self.playing_song:
-                self.play_song(self.playlist.request_next_track())
+            self.next_track()
             return 0
         except Exception as e:
             print(f"Error skipping backward: {e}")
             return 1
+
+    def next_track(self):
+        if not self.playing_song:
+            self.play_song(self.playlist.request_next_track())
 
 
     def _handle_previous_track(self, event):
@@ -272,18 +288,24 @@ class OSPlayer:
             return 1
 
         try:
-            if not self.playing_song:
-                self.play_song(self.playlist.request_last_track(self.player.currentTime()))
+            self.previous_track()
             return 0
         except Exception as e:
             print(f"Error skipping forward: {e}")
             return 1
+
+    def previous_track(self):
+        if not self.playing_song:
+            self.play_song(self.playlist.request_last_track(self.player.currentTime()))
 
     def update(self):
         self.update_now_playing()
         if self.player and not self.player.isPlaying() and not self.paused:
             if not self.playing_song:
                 self.play_song(self.playlist.request_next_track())
+
+            else:
+                self.paused = True
 
 # Usage
 if __name__ == "__main__":

@@ -95,6 +95,16 @@ class Playlist:
 
     def request_next_track(self):
         self.last_tracks.append(self._index)
+        seen = []
+        for i in range(len(self._songs)):
+            seen.append(False)
+
+        for i in self.last_tracks:
+            seen[i] = True
+
+        if all(seen):
+            self.last_tracks = self.last_tracks[-1:]
+
         if self._guaranteedNext != -1:
             self.set_index(self._guaranteedNext)
             self._guaranteedNext = -1

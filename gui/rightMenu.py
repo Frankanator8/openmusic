@@ -6,24 +6,26 @@ from gui.playlistWidget import PlaylistWidget
 
 
 class RightMenu(QWidget):
-    def __init__(self):
+    def __init__(self, osPlayer):
         super().__init__()
+        self.block_slider = False
+        self.osPlayer = osPlayer
         self.myLayout = QVBoxLayout()
 
-        image = QLabel()
-        image.setPixmap(QPixmap("/Users/hanyangliu/Regular.png"))
-        image.setMaximumSize(QSize(256, 256))
-        image.setScaledContents(True)
-        self.myLayout.addWidget(image)
+        self.image = QLabel()
+        self.image.setPixmap(QPixmap("/Users/hanyangliu/Regular.png"))
+        self.image.setMaximumSize(QSize(256, 256))
+        self.image.setScaledContents(True)
+        self.myLayout.addWidget(self.image)
 
         self.title = QLabel()
-        self.title.setText("Title goes here")
+        self.title.setText("Select a song to play")
         self.myLayout.addWidget(self.title)
         self.artist = QLabel()
-        self.artist.setText("Artist goes here")
+        self.artist.setText("Choose a song from either a\nplaylist or the song library")
         self.myLayout.addWidget(self.artist)
         self.album = QLabel()
-        self.album.setText("Album goes here")
+        self.album.setText("Click the song's tile to play it")
         self.myLayout.addWidget(self.album)
 
         hLayout = QHBoxLayout()
@@ -34,11 +36,13 @@ class RightMenu(QWidget):
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setRange(0, 1000)
         self.slider.setValue(0)
+        self.slider.valueChanged.connect(self.seek_time)
 
-        label = QLabel()
-        label.setText("Part of playlist:")
-        self.myLayout.addWidget(label)
-        self.myLayout.addWidget(PlaylistWidget("0a4543711e9448f59c43e70940d9dde8"))
+        self.playlistLabel = QLabel()
+        self.playlistLabel.setText("Part of playlist:")
+        self.playlistWidget = PlaylistWidget("0a4543711e9448f59c43e70940d9dde8")
+        self.myLayout.addWidget(self.playlistLabel)
+        self.myLayout.addWidget(self.playlistWidget)
 
         hLayout.addWidget(self.timeElapsed)
         hLayout.addWidget(self.slider)
@@ -49,14 +53,19 @@ class RightMenu(QWidget):
         hLayout2 = QHBoxLayout()
         self.playButton = QPushButton()
         self.playButton.setText("Play")
+        self.playButton.clicked.connect(self.toggle_play)
         self.skipBackward = QPushButton()
         self.skipBackward.setText("<<")
+        self.skipBackward.clicked.connect(self.previous_track)
         self.skipForward = QPushButton()
         self.skipForward.setText(">>")
+        self.skipForward.clicked.connect(self.next_track)
         self.backward15 = QPushButton()
         self.backward15.setText("<15")
+        self.backward15.clicked.connect(self.skip_backward)
         self.forward15 = QPushButton()
         self.forward15.setText("15>")
+        self.forward15.clicked.connect(self.skip_forward)
         hLayout2.addWidget(self.playButton)
         hLayout2.addWidget(self.skipBackward)
         hLayout2.addWidget(self.skipForward)
@@ -65,3 +74,64 @@ class RightMenu(QWidget):
         self.myLayout.addLayout(hLayout2)
 
         self.setLayout(self.myLayout)
+
+    def update_gui(self):
+        if self.osPlayer.player:
+            self.block_slider = True
+            self.title.setText(self.osPlayer.title)
+            self.artist.setText(self.osPlayer.artist)
+            self.album.setText(self.osPlayer.album)
+            self.image.setPixmap(QPixmap(self.osPlayer.artwork_path))
+            duration = self.osPlayer.duration
+            self.timeTotal.setText(f"{round(duration//60)}:{'0' if round(duration%60) < 10 else ''}{round(duration%60)}")
+            time = self.osPlayer.player.currentTime()
+            self.timeElapsed.setText(f"{round(time//60)}:{'0' if round(time%60) < 10 else ''}{round(time%60)}")
+
+            self.slider.setValue(time / duration * 1000)
+            if not self.osPlayer.playing_song:
+                if self.playlistWidget.uid != self.osPlayer.playlist.uid:
+                    self.playlistWidget.updateUID(self.osPlayer.playlist.uid)
+                self.playlistLabel.setText("Part of playlist:")
+
+            else:
+                self.playlistLabel.setText("Not a part of a playlist")
+
+            if self.osPlayer.paused:
+                self.playButton.setText("Play")
+
+            else:
+                self.playButton.setText("Pause")
+
+            if self.osPlayer.playing_song:
+                self.skipBackward.setEnabled(False)
+                self.skipForward.setEnabled(False)
+
+            else:
+                self.skipBackward.setEnabled(True)
+                self.skipForward.setEnabled(True)
+
+            self.block_slider = False
+
+    def seek_time(self, value):
+        if self.osPlayer.player and not self.block_slider:
+            self.osPlayer.seek(value/1000 * self.osPlayer.duration)
+
+    def toggle_play(self):
+        if self.osPlayer.player:
+            self.osPlayer.toggle_play_pause()
+
+    def skip_backward(self):
+        if self.osPlayer.player:
+            self.osPlayer.skip_backward(15.0)
+
+    def skip_forward(self):
+        if self.osPlayer.player:
+            self.osPlayer.skip_forward(15.0)
+
+    def next_track(self):
+        if self.osPlayer.player:
+            self.osPlayer.next_track()
+
+    def previous_track(self):
+        if self.osPlayer.player:
+            self.osPlayer.previous_track()

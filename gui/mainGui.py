@@ -11,6 +11,7 @@ class MainGui(QWidget):
         self.setWindowTitle("OpenMusic")
         self.showFullScreen()
         self.layout = QVBoxLayout()
+        self.rightMenu = RightMenu(osPlayer)
         splitter = QSplitter()
         centralScrollArea = QScrollArea()
 
@@ -19,7 +20,7 @@ class MainGui(QWidget):
         centralScrollArea.setWidget(FullPlaylistWidget(osPlayer, "0a4543711e9448f59c43e70940d9dde8"))
 
         splitter.addWidget(centralScrollArea)
-        splitter.addWidget(RightMenu())
+        splitter.addWidget(self.rightMenu)
 
         x = self.size().toTuple()[0]
         splitter.setSizes([x/4, 11*x/20, x/5])
