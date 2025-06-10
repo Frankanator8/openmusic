@@ -16,6 +16,7 @@ class Playlist:
         self._changed = False
         self._index = 0
         self.last_tracks = []
+        self._guaranteedNext = -1
 
     def add_song(self, song_id):
         self._songs.append(song_id)
@@ -36,6 +37,9 @@ class Playlist:
     def set_index(self, index):
         self._index = index
         self._changed = True
+
+    def set_guaranteed_next(self, index):
+        self._guaranteedNext = index
 
     def save(self):
         with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt", "w") as f:
@@ -91,19 +95,24 @@ class Playlist:
 
     def request_next_track(self):
         self.last_tracks.append(self._index)
-        if self._shuffle:
-            attempts = 15
-            while attempts > 0:
-                self.set_index(random.randint(0, len(self._songs)-1))
-                if self._index not in self.last_tracks:
-                    break
-                attempts -= 1
+        if self._guaranteedNext != -1:
+            self.set_index(self._guaranteedNext)
+            self._guaranteedNext = -1
 
         else:
-            i = self._index
-            i+=1
-            i%= len(self._songs)
-            self.set_index(i)
+            if self._shuffle:
+                attempts = 15
+                while attempts > 0:
+                    self.set_index(random.randint(0, len(self._songs)-1))
+                    if self._index not in self.last_tracks:
+                        break
+                    attempts -= 1
+
+            else:
+                i = self._index
+                i+=1
+                i%= len(self._songs)
+                self.set_index(i)
 
         return self._songs[self._index]
 

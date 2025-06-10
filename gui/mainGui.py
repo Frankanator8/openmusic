@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import *
 
+from gui.fullPlaylistWidget import FullPlaylistWidget
 from gui.leftMenu import LeftMenu
 
 
@@ -10,10 +11,13 @@ class MainGui(QWidget):
         self.showFullScreen()
         self.layout = QVBoxLayout()
         splitter = QSplitter()
+        centralScrollArea = QScrollArea()
 
         self.layout.addWidget(splitter)
-        splitter.addWidget(LeftMenu(osPlayer))
-        splitter.addWidget(QScrollArea())
+        splitter.addWidget(LeftMenu(osPlayer, centralScrollArea))
+        centralScrollArea.setWidget(FullPlaylistWidget(osPlayer, "0a4543711e9448f59c43e70940d9dde8"))
+
+        splitter.addWidget(centralScrollArea)
         splitter.addWidget(QScrollArea())
 
         x = self.size().toTuple()[0]

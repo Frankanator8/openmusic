@@ -17,8 +17,6 @@ playlist = Playlist.load("0a4543711e9448f59c43e70940d9dde8")
 player = OSPlayer()
 
 songs = SongLibrary.retrieve_songs()
-playlist = Playlist.create_playlist("all", "/Users/hanyangfliu/Regular.png", songs, True)
-player.play(playlist)
 # a = VideoDownload("undertale ost 071", search=True)
 # a.download()
 # print(a.uid)

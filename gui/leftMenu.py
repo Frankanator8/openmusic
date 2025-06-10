@@ -7,7 +7,7 @@ from gui.songmenu import SongMenu
 
 
 class LeftMenu(QWidget):
-    def __init__(self, osPlayer):
+    def __init__(self, osPlayer, centralScrollArea):
         super().__init__()
         self.layout = QVBoxLayout()
         splitter = QSplitter(Qt.Vertical)
@@ -29,7 +29,7 @@ class LeftMenu(QWidget):
         top = QLabel()
         top.setText("Playlists")
         scrollArea = QScrollArea()
-        scrollArea.setWidget(PlaylistMenu())
+        scrollArea.setWidget(PlaylistMenu(osPlayer, centralScrollArea))
         bottomMenu.addWidget(top)
         bottomMenu.addWidget(scrollArea)
         self.bottomWidget.setLayout(bottomMenu)
