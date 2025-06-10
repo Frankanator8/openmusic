@@ -36,7 +36,6 @@ class FullPlaylistWidget(QWidget):
             widget.clicked.connect(self.play_song_in_playlist)
             self.myLayout.addWidget(widget)
             self.uidToIndex[song] = index
-        print(uid)
 
         self.setLayout(self.myLayout)
         self.myLayout.update()

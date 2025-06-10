@@ -2,6 +2,7 @@ from PySide6.QtWidgets import *
 
 from gui.fullPlaylistWidget import FullPlaylistWidget
 from gui.leftMenu import LeftMenu
+from gui.rightMenu import RightMenu
 
 
 class MainGui(QWidget):
@@ -18,7 +19,7 @@ class MainGui(QWidget):
         centralScrollArea.setWidget(FullPlaylistWidget(osPlayer, "0a4543711e9448f59c43e70940d9dde8"))
 
         splitter.addWidget(centralScrollArea)
-        splitter.addWidget(QScrollArea())
+        splitter.addWidget(RightMenu())
 
         x = self.size().toTuple()[0]
         splitter.setSizes([x/4, 11*x/20, x/5])
