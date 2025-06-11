@@ -9,14 +9,21 @@ class SongMenu(QWidget):
         super().__init__()
         self.osPlayer = osPlayer
         self.vlayout = QVBoxLayout()
-        amt = 0
+        self.setLayout(self.vlayout)
+
+        self.reload()
+
+    def play_song(self, uid):
+        self.osPlayer.play(uid)
+
+    def reload(self):
+        while self.vlayout.count():
+            child = self.vlayout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
         for i in SongLibrary.retrieve_songs():
             widget = SongWidget(i)
             self.vlayout.addWidget(widget)
             widget.clicked.connect(self.play_song)
-            amt += 1
 
-        self.setLayout(self.vlayout)
-
-    def play_song(self, uid):
-        self.osPlayer.play(uid)

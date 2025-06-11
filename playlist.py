@@ -45,7 +45,7 @@ class Playlist:
         with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt", "w") as f:
             f.write("\n".join([self._name, str(1 if self._shuffle else 0), str(self._index), ""] + self._songs))
 
-        if self._image_url != "" and not self._image_url.startswith(self.uid):
+        if self._image_url != "" and not self._image_url.split("/")[-1].startswith(self.uid):
             shutil.copyfile(self._image_url, f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png")
             self._image_url = f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png"
 
