@@ -4,6 +4,7 @@ import uuid
 from operator import truediv
 
 from filehandler import FileHandler
+from songmaker import SongMaker
 
 
 class Playlist:
@@ -141,7 +142,7 @@ class Playlist:
 
     @classmethod
     def create_playlist(cls, name, image_url, songs, shuffle):
-        instance = cls(str(uuid.uuid4()).replace("-", ""))
+        instance = cls(SongMaker.make_uid())
         instance.set_name(name)
         instance.set_image_url(image_url)
         if shuffle:
