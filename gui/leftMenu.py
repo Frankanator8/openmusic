@@ -1,10 +1,11 @@
 import shutil
 import uuid
+from operator import truediv
 
 import moviepy
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QScrollArea, QLabel, QHBoxLayout, QPushButton, QDialog, \
-    QFormLayout, QLineEdit, QFileDialog, QCheckBox, QSizePolicy
+    QFormLayout, QLineEdit, QFileDialog, QCheckBox, QSizePolicy, QMessageBox
 import os
 
 from filehandler import FileHandler
@@ -144,7 +145,7 @@ class LeftMenu(QWidget):
         self.songEdit.textChanged.connect(self.multi_button_update)
         hLayout.addWidget(self.songEdit)
         self.modalLayout.addLayout(hLayout)
-        self.modalLayout.addWidget(QLabel("Enter the naming pattern for your audio files. \nThe naming pattern must include all 3 of the following parameters:\n%s - song name; %a - artist name; %l - album name; \n%% - percent symbol\nExample %s - %a (%l)"))
+        self.modalLayout.addWidget(QLabel("Enter the naming pattern for your audio files. \nThe naming pattern must include all 3 of the following parameters:\n%s - song name; %a - artist name; %l - album name; \n%% - percent symbol; * - wild card section\nExample: /Users/EX/%s - %a (%l)**.mp3"))
 
         hLayout = QHBoxLayout()
         hLayout.addWidget(QLabel("Cover Pattern Match"))
@@ -225,7 +226,7 @@ class LeftMenu(QWidget):
         self.submitButton = QPushButton()
         self.submitButton.setText("Create")
         self.submitButton.setEnabled(False)
-        self.submitButton.clicked.connect(self.make_song)
+        self.submitButton.clicked.connect(self.make_songs)
         self.modalLayout.addWidget(self.submitButton)
 
         self.resultLabel = QLabel()
@@ -314,3 +315,188 @@ class LeftMenu(QWidget):
         self.image_files = fileNames[0]
         self.image_files_label.setText("\n".join(self.image_files))
         self.multi_button_update()
+
+    def make_songs(self):
+        audio_pattern = self.songEdit.text().strip()
+        cover_pattern = self.coverEdit.text().strip()
+        ignore = self.ignoreErrors.isChecked()
+
+        matchList = []
+        songsMade = 0
+        if self.songNameEquality.isChecked():
+            matchList.append(0)
+
+        if self.artistNameEquality.isChecked():
+            matchList.append(1)
+
+        if self.albumNameEquality.isChecked():
+            matchList.append(2)
+
+        song_dict = {}
+        match_dict = {}
+
+        for i in self.audio_files:
+            patternIndex = 0
+            fileIndex = 0
+            failed = False
+            songdata = ["", "", ""]
+            dataIndex = -1
+            while patternIndex < len(audio_pattern) and fileIndex < len(i):
+                if audio_pattern[patternIndex] == "%":
+                    if patternIndex == len(audio_pattern) - 1:
+                        failed = True
+                        break
+
+                    match audio_pattern[patternIndex+1]:
+                        case "s":
+                            dataIndex = 0
+
+                        case "a":
+                            dataIndex = 1
+
+                        case "l":
+                            dataIndex = 2
+
+                        case "%":
+                            if i[fileIndex] == "%":
+                                dataIndex = -1
+                                fileIndex += 1
+
+                            else:
+                                failed = True
+                                break
+
+                    patternIndex += 2
+
+                elif audio_pattern[patternIndex] == "*":
+                    patternIndex+=1
+                    if patternIndex >= len(audio_pattern):
+                        break
+
+                    while i[fileIndex] != audio_pattern[patternIndex]:
+                        fileIndex += 1
+
+                    fileIndex += 1
+                    patternIndex += 1
+
+                else:
+                    if i[fileIndex] == audio_pattern[patternIndex]:
+                        dataIndex = -1
+                        patternIndex += 1
+                        fileIndex += 1
+
+                    else:
+                        if dataIndex != -1:
+                            songdata[dataIndex] = f"{songdata[dataIndex]}{i[fileIndex]}"
+                            fileIndex += 1
+
+                        else:
+                            failed = True
+                            break
+
+
+            if failed:
+                if not ignore:
+                    QMessageBox.critical(self, "Parse Error",
+                    f"There was an error parsing\n{i}\nPress OK to continue",
+                    QMessageBox.Ok)
+
+            else:
+                if songdata[0] == "" or songdata[1] == "" or songdata[2] == "":
+                    if not ignore:
+                        QMessageBox.critical(self, "Song Error",
+                                             f"There were parameters missing in\n{i}\nPress OK to continue",
+                                             QMessageBox.Ok)
+
+                else:
+                    song_dict[tuple(songdata)] = i
+
+                    matchdata = [songdata[i] for i in matchList]
+
+                    match_dict[tuple(matchdata)] = tuple(songdata)
+
+
+        for i in self.image_files:
+            patternIndex = 0
+            fileIndex = 0
+            failed = False
+            songdata = ["", "", ""]
+            dataIndex = -1
+            while patternIndex < len(cover_pattern) and fileIndex < len(i):
+                if cover_pattern[patternIndex] == "%":
+                    if patternIndex == len(cover_pattern) - 1:
+                        failed = True
+                        break
+
+                    match cover_pattern[patternIndex+1]:
+                        case "s":
+                            dataIndex = 0
+
+                        case "a":
+                            dataIndex = 1
+
+                        case "l":
+                            dataIndex = 2
+
+                        case "%":
+                            if i[fileIndex] == "%":
+                                dataIndex = -1
+                                fileIndex += 1
+
+                            else:
+                                failed = True
+                                break
+
+                    patternIndex += 2
+
+                elif cover_pattern[patternIndex] == "*":
+                    patternIndex+=1
+                    if patternIndex >= len(cover_pattern):
+                        break
+
+                    while i[fileIndex] != cover_pattern[patternIndex]:
+                        fileIndex += 1
+
+                    fileIndex += 1
+                    patternIndex += 1
+
+                else:
+                    if i[fileIndex] == cover_pattern[patternIndex]:
+                        dataIndex = -1
+                        patternIndex += 1
+                        fileIndex += 1
+
+                    else:
+                        if dataIndex != -1:
+                            songdata[dataIndex] = f"{songdata[dataIndex]}{i[fileIndex]}"
+                            fileIndex += 1
+
+                        else:
+                            failed = True
+                            break
+
+
+            if failed:
+                if not ignore:
+                    QMessageBox.critical(self, "Parse Error",
+                                         f"There was an error parsing\n{i}\nPress OK to continue",
+                                         QMessageBox.Ok)
+
+            else:
+                matchdata = [songdata[i] for i in matchList]
+                if matchdata in match_dict.keys():
+                    name, artist, album = match_dict[matchdata]
+                    audio_url = song_dict[match_dict[matchdata]]
+                    image_url = i
+                    SongMaker.make_song(name, artist, album, image_url, audio_url)
+                    songsMade += 1
+
+                else:
+                    if not ignore:
+                        QMessageBox.critical(self, "Match Error",
+                                             f"There was no match for \n{i}\nPress OK to continue",
+                                             QMessageBox.Ok)
+
+        self.resultLabel.setText(f"Success! Created {songsMade}")
+        self.songMenu.reload()
+
