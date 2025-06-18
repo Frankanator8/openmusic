@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea
 
 from gui.fullPlaylistWidget import FullPlaylistWidget
+from gui.playlistEditor import PlaylistEditor
 from gui.playlistWidget import PlaylistWidget
 from playlistLibrary import PlaylistLibrary
 
@@ -12,13 +13,27 @@ class PlaylistMenu(QWidget):
         self.centralScrollArea = centralScrollArea
         self.osPlayer = osplayer
         amt = 0
-        for i in PlaylistLibrary.retrieve_playlists():
-            widget = PlaylistWidget(i)
-            widget.clicked.connect(self.set_playlist_widget)
-            self.vlayout.addWidget(widget)
-            amt += 1
+        self.reload()
 
         self.setLayout(self.vlayout)
 
     def set_playlist_widget(self, uid):
-        self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, uid))
+        self.centralScrollArea.widget().deleteLater()
+        self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, uid, self))
+
+    def reload(self):
+        while self.vlayout.count():
+            child = self.vlayout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        for i in PlaylistLibrary.retrieve_playlists():
+            widget = PlaylistWidget(i)
+            widget.clicked.connect(self.set_playlist_widget)
+            self.vlayout.addWidget(widget)
+
+        self.updateGeometry()
+
+    def edit_playlist(self, playlist):
+        dialog = PlaylistEditor(playlist, self, self.osPlayer, self.centralScrollArea)
+        dialog.exec()

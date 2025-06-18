@@ -16,8 +16,9 @@ class MainGui(QWidget):
         centralScrollArea = QScrollArea()
 
         self.layout.addWidget(splitter)
-        splitter.addWidget(LeftMenu(osPlayer, centralScrollArea))
-        centralScrollArea.setWidget(FullPlaylistWidget(osPlayer, "0a4543711e9448f59c43e70940d9dde8"))
+        self.leftMenu = LeftMenu(osPlayer, centralScrollArea)
+        splitter.addWidget(self.leftMenu)
+        centralScrollArea.setWidget(FullPlaylistWidget(osPlayer, "0a4543711e9448f59c43e70940d9dde8", self.leftMenu.playlistMenu))
 
         splitter.addWidget(centralScrollArea)
         splitter.addWidget(self.rightMenu)

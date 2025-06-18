@@ -1,17 +1,17 @@
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout
-
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QSizePolicy
 from gui.songWidget import SongWidget
 from playlist import Playlist
 
 
 class FullPlaylistWidget(QWidget):
-    def __init__(self, osplayer, uid):
+    def __init__(self, osplayer, uid, parent):
         super().__init__()
         self.osPlayer = osplayer
         self.playlist = Playlist.load(uid)
         self.myLayout = QVBoxLayout()
+        self.parentMenu = parent
 
         hLayout = QHBoxLayout()
         image = QLabel()
@@ -21,13 +21,20 @@ class FullPlaylistWidget(QWidget):
         hLayout.addWidget(image)
 
         vLayout = QVBoxLayout()
+        vLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         title = QLabel()
         title.setText(self.playlist._name)
         shuffle = QLabel()
         shuffle.setText(f"Shuffle: {'ON' if self.playlist._shuffle else 'OFF'}")
+        button = QPushButton()
+        button.setText("Edit Playlist")
+        button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        button.clicked.connect(self.edit_curr_playlist)
+
         vLayout.addWidget(title)
         vLayout.addWidget(shuffle)
         hLayout.addLayout(vLayout)
+        vLayout.addWidget(button)
 
         self.myLayout.addLayout(hLayout)
         self.uidToIndex = {}
@@ -44,4 +51,8 @@ class FullPlaylistWidget(QWidget):
     def play_song_in_playlist(self, uid):
         self.playlist.set_guaranteed_next(self.uidToIndex[uid])
         self.osPlayer.play(self.playlist)
+
+    def edit_curr_playlist(self):
+        self.parentMenu.edit_playlist(self.playlist)
+
 

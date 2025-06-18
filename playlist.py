@@ -23,15 +23,39 @@ class Playlist:
         self._songs.append(song_id)
         self._changed = True
 
-    def toggle_shuffle(self):
-        self._shuffle = not self._shuffle
+    @property
+    def songs(self):
+        return self._songs
+
+    @songs.setter
+    def songs(self, value):
+        self._songs = value
         self._changed = True
 
-    def set_name(self, name):
+    @property
+    def shuffle(self):
+        return self._shuffle
+
+    @shuffle.setter
+    def shuffle(self, value):
+        self._shuffle = value
+        self._changed = True
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, name):
         self._name = name
         self._changed = True
 
-    def set_image_url(self, url):
+    @property
+    def image_url(self):
+        return self._image_url
+
+    @image_url.setter
+    def image_url(self, url):
         self._image_url = url
         self._changed = True
 
@@ -143,10 +167,9 @@ class Playlist:
     @classmethod
     def create_playlist(cls, name, image_url, songs, shuffle):
         instance = cls(SongMaker.make_uid())
-        instance.set_name(name)
-        instance.set_image_url(image_url)
-        if shuffle:
-            instance.toggle_shuffle()
+        instance.name = name
+        instance.image_url = image_url
+        instance.shuffle = True
 
         for song in songs:
             instance.add_song(song)

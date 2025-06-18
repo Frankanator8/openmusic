@@ -9,8 +9,10 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QScrollArea, QLab
 import os
 
 from filehandler import FileHandler
+from gui.playlistEditor import PlaylistEditor
 from gui.playlistmenu import PlaylistMenu
 from gui.songmenu import SongMenu
+from playlist import Playlist
 from songmaker import SongMaker
 
 
@@ -19,6 +21,9 @@ class LeftMenu(QWidget):
         super().__init__()
         self.layout = QVBoxLayout()
         splitter = QSplitter(Qt.Vertical)
+
+        self.osPlayer = osPlayer
+        self.centralScrollArea = centralScrollArea
 
 
         self.topWidget = QWidget()
@@ -44,12 +49,22 @@ class LeftMenu(QWidget):
 
         self.bottomWidget = QWidget()
         bottomMenu = QVBoxLayout()
+        self.playlistMenu = PlaylistMenu(osPlayer, centralScrollArea)
+
+        hLayout = QHBoxLayout()
         top = QLabel()
         top.setText("Playlists")
-        scrollArea = QScrollArea()
-        scrollArea.setWidget(PlaylistMenu(osPlayer, centralScrollArea))
-        bottomMenu.addWidget(top)
-        bottomMenu.addWidget(scrollArea)
+        hLayout.addWidget(top)
+        button = QPushButton()
+        button.setText("New playlist")
+        button.clicked.connect(self.new_playlist)
+        hLayout.addWidget(button)
+
+        self.playlistScrollArea = QScrollArea()
+        self.playlistScrollArea.setWidget(self.playlistMenu)
+        self.playlistScrollArea.setWidgetResizable(True)
+        bottomMenu.addLayout(hLayout)
+        bottomMenu.addWidget(self.playlistScrollArea)
         self.bottomWidget.setLayout(bottomMenu)
         splitter.addWidget(self.bottomWidget)
 
@@ -302,8 +317,6 @@ class LeftMenu(QWidget):
 
         self.submitButton.setEnabled(enabled)
 
-
-
     def request_audios(self):
         fileNames = QFileDialog.getOpenFileNames(self, "Open Files", str(os.path.expanduser("~")),"Audio (*.mp3)")
         self.audio_files = fileNames[0]
@@ -500,3 +513,6 @@ class LeftMenu(QWidget):
         self.resultLabel.setText(f"Success! Created {songsMade}")
         self.songMenu.reload()
 
+    def new_playlist(self):
+        new = Playlist.create_playlist("New playlist", "/Users/hanyangliu/Regular.png", [], True)
+        self.playlistMenu.edit_playlist(new)

@@ -1,3 +1,5 @@
+import math
+
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout, QPushButton
@@ -83,9 +85,9 @@ class RightMenu(QWidget):
             self.album.setText(self.osPlayer.album)
             self.image.setPixmap(QPixmap(self.osPlayer.artwork_path))
             duration = self.osPlayer.duration
-            self.timeTotal.setText(f"{round(duration//60)}:{'0' if round(duration%60) < 10 else ''}{round(duration%60)}")
+            self.timeTotal.setText(f"{math.floor(duration//60)}:{'0' if math.floor(duration%60) < 10 else ''}{math.floor(duration%60)}")
             time = self.osPlayer.player.currentTime()
-            self.timeElapsed.setText(f"{round(time//60)}:{'0' if round(time%60) < 10 else ''}{round(time%60)}")
+            self.timeElapsed.setText(f"{math.floor(time//60)}:{'0' if math.floor(time%60) < 10 else ''}{math.floor(time%60)}")
 
             self.slider.setValue(time / duration * 1000)
             if not self.osPlayer.playing_song:
