@@ -35,9 +35,14 @@ class PlaylistWidget(QWidget):
 
 
     def load_data(self):
-        image_url = f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png"
-        with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt") as f:
-            title = f.readline()
+        if self.uid != "":
+            image_url = f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png"
+            with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt") as f:
+                title = f.readline()
+
+        else:
+            image_url = "img/x.png"
+            title = "(no playlist)"
 
         return image_url, title
 

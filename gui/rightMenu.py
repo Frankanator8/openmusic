@@ -97,6 +97,7 @@ class RightMenu(QWidget):
 
             else:
                 self.playlistLabel.setText("Not a part of a playlist")
+                self.playlistWidget.updateUID("")
 
             if self.osPlayer.paused:
                 self.playButton.setText("Play")
@@ -113,6 +114,21 @@ class RightMenu(QWidget):
                 self.skipForward.setEnabled(True)
 
             self.block_slider = False
+            self.playButton.setEnabled(True)
+            self.forward15.setEnabled(True)
+            self.backward15.setEnabled(True)
+
+        else:
+            self.playButton.setEnabled(False)
+            self.forward15.setEnabled(False)
+            self.backward15.setEnabled(False)
+            self.skipForward.setEnabled(False)
+            self.skipBackward.setEnabled(False)
+            self.title.setText("Select a song to play")
+            self.artist.setText("Choose a song from either a\nplaylist or the song library")
+            self.album.setText("Click the song's tile to play it")
+            self.playlistWidget.updateUID("")
+            self.playlistLabel.setText("Not a part of a playlist")
 
     def seek_time(self, value):
         if self.osPlayer.player and not self.block_slider:
