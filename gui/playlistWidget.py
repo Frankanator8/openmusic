@@ -7,6 +7,7 @@ from filehandler import FileHandler
 
 class PlaylistWidget(QWidget):
     clicked = Signal(str)
+    right_click = Signal(tuple, str)
     def __init__(self, uid):
         super().__init__()
         self.uid = uid
@@ -33,6 +34,9 @@ class PlaylistWidget(QWidget):
         for child in self.findChildren(QLabel):
             child.setCursor(Qt.PointingHandCursor)
 
+        self.setContextMenuPolicy(Qt.CustomContextMenu)  # Enable context menu
+        self.customContextMenuRequested.connect(lambda pos: self.right_click.emit(pos, self.uid))
+
 
     def load_data(self):
         if self.uid != "":
@@ -47,8 +51,10 @@ class PlaylistWidget(QWidget):
         return image_url, title
 
     def mousePressEvent(self, event):
-        """Called when the widget is clicked"""
-        self.clicked.emit(self.uid)  # Emit the signal
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit(self.uid)
+        elif event.button() == Qt.RightButton:
+            return event.accept()
         super().mousePressEvent(event)  # Call parent class implementation
 
     def updateUID(self, uid):

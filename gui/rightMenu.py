@@ -15,7 +15,9 @@ class RightMenu(QWidget):
         self.myLayout = QVBoxLayout()
 
         self.image = QLabel()
-        self.image.setPixmap(QPixmap("/Users/hanyangliu/Regular.png"))
+        self.image.setPixmap(QPixmap("img/x.png"))
+        self.image.setMinimumSize(QSize(256, 256))
+
         self.image.setMaximumSize(QSize(256, 256))
         self.image.setScaledContents(True)
         self.myLayout.addWidget(self.image)
@@ -42,7 +44,7 @@ class RightMenu(QWidget):
 
         self.playlistLabel = QLabel()
         self.playlistLabel.setText("Part of playlist:")
-        self.playlistWidget = PlaylistWidget("0a4543711e9448f59c43e70940d9dde8")
+        self.playlistWidget = PlaylistWidget("")
         self.myLayout.addWidget(self.playlistLabel)
         self.myLayout.addWidget(self.playlistWidget)
 
@@ -129,6 +131,7 @@ class RightMenu(QWidget):
             self.album.setText("Click the song's tile to play it")
             self.playlistWidget.updateUID("")
             self.playlistLabel.setText("Not a part of a playlist")
+            self.image.setPixmap(QPixmap("img/x.png"))
 
     def seek_time(self, value):
         if self.osPlayer.player and not self.block_slider:

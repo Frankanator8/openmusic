@@ -162,6 +162,9 @@ class OSPlayer:
             info = self._generate_info()
             self.info_center.setNowPlayingInfo_(info)
 
+        else:
+            self.info_center.setNowPlayingInfo_({})
+
     def _handle_play(self, event):
         if self.player and not self.player.isPlaying():
             self.player.play()

@@ -1,8 +1,10 @@
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea
+from PySide6.QtGui import QAction
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QMenu
 
 from gui.fullPlaylistWidget import FullPlaylistWidget
 from gui.playlistEditor import PlaylistEditor
 from gui.playlistWidget import PlaylistWidget
+from playlist import Playlist
 from playlistLibrary import PlaylistLibrary
 
 
@@ -12,10 +14,9 @@ class PlaylistMenu(QWidget):
         self.vlayout = QVBoxLayout()
         self.centralScrollArea = centralScrollArea
         self.osPlayer = osplayer
-        amt = 0
         self.reload()
-
         self.setLayout(self.vlayout)
+        self.adjustSize()
 
     def set_playlist_widget(self, uid):
         self.centralScrollArea.widget().deleteLater()
@@ -30,6 +31,7 @@ class PlaylistMenu(QWidget):
         for i in PlaylistLibrary.retrieve_playlists():
             widget = PlaylistWidget(i)
             widget.clicked.connect(self.set_playlist_widget)
+            widget.right_click.connect(self.open_context_plwidget)
             self.vlayout.addWidget(widget)
 
         self.updateGeometry()
@@ -37,3 +39,47 @@ class PlaylistMenu(QWidget):
     def edit_playlist(self, playlist):
         dialog = PlaylistEditor(playlist, self, self.osPlayer, self.centralScrollArea)
         dialog.exec()
+
+    def open_context_plwidget(self, pos, uid):
+        playlist = Playlist.load(uid)
+        def toggle_shuffle():
+            playlist.shuffle = not playlist.shuffle
+            playlist.save()
+            self.centralScrollArea.widget().deleteLater()
+            self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, playlist.uid, self))
+        menu = QMenu(self)
+
+        # Add actions to the menu
+        rename_action = QAction("Edit", self)
+        rename_action.triggered.connect(lambda: self.edit_playlist(playlist))
+        menu.addAction(rename_action)
+
+        delete_action = QAction("Delete", self)
+        delete_action.triggered.connect(lambda: self.deletePlaylist(playlist))
+        menu.addAction(delete_action)
+
+        # Add separator if needed
+        menu.addSeparator()
+
+        # Add more actions as needed
+        info_action = QAction("Toggle Shuffle", self)
+        info_action.triggered.connect(toggle_shuffle)
+        menu.addAction(info_action)
+
+        sender_widget = self.sender()
+        if isinstance(sender_widget, PlaylistWidget):
+            # Map the position from the sender widget to global coordinates
+            global_pos = sender_widget.mapToGlobal(pos)
+            menu.exec(global_pos)
+        else:
+            # Fallback to current behavior if sender isn't available
+            menu.exec(self.mapToGlobal(pos))
+
+    def deletePlaylist(self, playlist):
+        playlist.delete()
+        self.reload()
+        if self.centralScrollArea.widget().playlist.uid == playlist.uid:
+            self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, "", self))
+
+        self.osPlayer.toggle_play_pause()
+        self.osPlayer.player = None

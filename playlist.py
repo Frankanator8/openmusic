@@ -1,3 +1,4 @@
+import os
 import random
 import shutil
 import uuid
@@ -175,3 +176,8 @@ class Playlist:
             instance.add_song(song)
 
         return instance
+
+    def delete(self):
+        os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt")
+        os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png")
+
