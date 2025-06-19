@@ -24,7 +24,7 @@ class LeftMenu(QWidget):
 
         self.osPlayer = osPlayer
         self.centralScrollArea = centralScrollArea
-
+        self.playlistMenu = PlaylistMenu(osPlayer, centralScrollArea)
 
         self.topWidget = QWidget()
         topMenu = QVBoxLayout()
@@ -40,7 +40,7 @@ class LeftMenu(QWidget):
         hLayout.addWidget(newSong)
 
         scrollArea = QScrollArea()
-        self.songMenu = SongMenu(osPlayer)
+        self.songMenu = SongMenu(osPlayer, centralScrollArea, self.playlistMenu)
         scrollArea.setWidget(self.songMenu)
         topMenu.addLayout(hLayout)
         topMenu.addWidget(scrollArea)
@@ -49,7 +49,7 @@ class LeftMenu(QWidget):
 
         self.bottomWidget = QWidget()
         bottomMenu = QVBoxLayout()
-        self.playlistMenu = PlaylistMenu(osPlayer, centralScrollArea)
+
 
         hLayout = QHBoxLayout()
         top = QLabel()

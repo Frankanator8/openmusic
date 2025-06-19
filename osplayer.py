@@ -187,12 +187,13 @@ class OSPlayer:
         return 0  # Return 0 for success
 
     def toggle_play_pause(self):
-        if self.player.isPlaying():
-            self.player.pause()
-        else:
-            self.player.play()
-        self.paused = not self.paused
-        self.update_now_playing()
+        if self.player:
+            if self.player.isPlaying():
+                self.player.pause()
+            else:
+                self.player.play()
+            self.paused = not self.paused
+            self.update_now_playing()
 
     def _handle_seek(self, event):
         """Handle scrubbing/seeking to a specific position"""

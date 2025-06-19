@@ -7,6 +7,8 @@ from filehandler import FileHandler
 
 class SongWidget(QWidget):
     clicked = Signal(str)
+    right_click = Signal(tuple, str)
+
     def __init__(self, uid):
         super().__init__()
         self.uid = uid
@@ -36,6 +38,9 @@ class SongWidget(QWidget):
         for child in self.findChildren(QLabel):
             child.setCursor(Qt.PointingHandCursor)
 
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(lambda pos: self.right_click.emit(pos, self.uid))
+
 
     def load_data(self):
         image_url = f"{FileHandler.SONG_DATA}/{self.uid}.png"
@@ -47,6 +52,8 @@ class SongWidget(QWidget):
         return image_url, title, artist, album
 
     def mousePressEvent(self, event):
-        """Called when the widget is clicked"""
-        self.clicked.emit(self.uid)  # Emit the signal
-        super().mousePressEvent(event)  # Call parent class implementation
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit(self.uid)
+        elif event.button() == Qt.RightButton:
+            return event.accept()
+        super().mousePressEvent(event)

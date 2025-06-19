@@ -1,5 +1,5 @@
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QMenu
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QMenu, QMessageBox
 
 from gui.fullPlaylistWidget import FullPlaylistWidget
 from gui.playlistEditor import PlaylistEditor
@@ -76,10 +76,12 @@ class PlaylistMenu(QWidget):
             menu.exec(self.mapToGlobal(pos))
 
     def deletePlaylist(self, playlist):
-        playlist.delete()
-        self.reload()
-        if self.centralScrollArea.widget().playlist.uid == playlist.uid:
-            self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, "", self))
+        message = QMessageBox.critical(self, "Really delete?", f"Really delete {playlist.name}? This action is irreversible", QMessageBox.Ok | QMessageBox.Cancel)
+        if message == QMessageBox.Ok:
+            playlist.delete()
+            self.reload()
+            if self.centralScrollArea.widget().playlist.uid == playlist.uid:
+                self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, "", self))
 
-        self.osPlayer.toggle_play_pause()
-        self.osPlayer.player = None
+            self.osPlayer.toggle_play_pause()
+            self.osPlayer.player = None

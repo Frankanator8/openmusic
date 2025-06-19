@@ -24,6 +24,10 @@ class Playlist:
         self._songs.append(song_id)
         self._changed = True
 
+    def remove_song(self, song_id):
+        self._songs.remove(song_id)
+        self._changed = True
+
     @property
     def songs(self):
         return self._songs
