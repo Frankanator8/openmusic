@@ -55,7 +55,9 @@ class SongMenu(QWidget):
         # Add more actions as needed
         add_more = QMenu("Add to playlist", self)
         for playlist in PlaylistLibrary.retrieve_playlists():
-            add_more.addAction(QAction(Playlist.load(playlist).name, self))
+            playlistAction = QAction(Playlist.load(playlist).name, self)
+            playlistAction.triggered.connect(lambda : self.add_song_to_playlist(uid, playlist))
+            add_more.addAction(playlistAction)
         menu.addMenu(add_more)
 
         sender_widget = self.sender()
@@ -89,3 +91,11 @@ class SongMenu(QWidget):
                 self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer,  self.centralScrollArea.widget().playlist.uid, self.playlistMenu))
 
             self.reload()
+
+    def add_song_to_playlist(self, song_uid, playlist_uid):
+        playlist = Playlist.load(playlist_uid)
+        playlist.add_song(song_uid)
+        playlist.save()
+        if self.centralScrollArea.widget().playlist.uid == playlist_uid:
+            self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, playlist_uid, self.playlistMenu))
+
