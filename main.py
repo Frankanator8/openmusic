@@ -27,7 +27,7 @@ gui_timer.start(50)
 
 widget = MainGui(player)
 gui_update_timer = QTimer()
-gui_update_timer.timeout.connect(widget.rightMenu.update_gui)
+gui_update_timer.timeout.connect(widget.update_subs)
 gui_update_timer.start(50)
 
 widget.show()

@@ -13,7 +13,7 @@ from MediaPlayer import (
     MPMediaItemPropertyArtwork
 )
 from AppKit import NSImage, NSApplication
-from filehandler import FileHandler
+from osop.filehandler import FileHandler
 from util.playlist import Playlist
 
 
@@ -310,6 +310,14 @@ class OSPlayer:
 
             else:
                 self.paused = True
+
+    def stop(self):
+        if not self.paused:
+            self.toggle_play_pause()
+
+        self.player = None
+        self.playing_song = False
+
 
 # Usage
 if __name__ == "__main__":

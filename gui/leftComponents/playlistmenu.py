@@ -1,26 +1,25 @@
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenu, QMessageBox
-
-from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
 from gui.dialogs.playlistEditor import PlaylistEditor
 from gui.blocks.playlistBlock import PlaylistBlock
+from gui.globalUpdater import GlobalUpdater
 from util.playlist import Playlist
 from library.playlistLibrary import PlaylistLibrary
 
 
 class PlaylistMenu(QWidget):
-    def __init__(self, osplayer, centralScrollArea):
+    def __init__(self, osplayer, globalUpdater):
         super().__init__()
         self.vlayout = QVBoxLayout()
-        self.centralScrollArea = centralScrollArea
+        self.globalUpdater = globalUpdater
         self.osPlayer = osplayer
         self.reload()
         self.setLayout(self.vlayout)
         self.adjustSize()
 
     def set_playlist_widget(self, uid):
-        self.centralScrollArea.widget().deleteLater()
-        self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, uid, self))
+        self.globalUpdater.playlist_uid = uid
+        self.globalUpdater.update(GlobalUpdater.CENTER_MENU)
 
     def reload(self):
         while self.vlayout.count():
@@ -37,7 +36,7 @@ class PlaylistMenu(QWidget):
         self.updateGeometry()
 
     def edit_playlist(self, playlist):
-        dialog = PlaylistEditor(playlist, self, self.osPlayer, self.centralScrollArea)
+        dialog = PlaylistEditor(self, self.globalUpdater, playlist, self.osPlayer)
         dialog.exec()
 
     def open_context_plwidget(self, pos, uid):
@@ -45,8 +44,7 @@ class PlaylistMenu(QWidget):
         def toggle_shuffle():
             playlist.shuffle = not playlist.shuffle
             playlist.save()
-            self.centralScrollArea.widget().deleteLater()
-            self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, playlist.uid, self))
+            self.globalUpdater.update(GlobalUpdater.CENTER_MENU)
         menu = QMenu(self)
 
         # Add actions to the menu
@@ -79,9 +77,10 @@ class PlaylistMenu(QWidget):
         message = QMessageBox.critical(self, "Really delete?", f"Really delete {playlist.name}? This action is irreversible", QMessageBox.Ok | QMessageBox.Cancel)
         if message == QMessageBox.Ok:
             playlist.delete()
-            self.reload()
-            if self.centralScrollArea.widget().playlist.uid == playlist.uid:
-                self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, "", self))
+            self.globalUpdater.playlist_uid = ""
+            self.globalUpdater.update(GlobalUpdater.CENTER_MENU | GlobalUpdater.PLAYLIST_MENU)
+            self.osPlayer.stop()
 
-            self.osPlayer.toggle_play_pause()
-            self.osPlayer.player = None
+    def check_update(self):
+        if self.globalUpdater.check_and_unset(GlobalUpdater.PLAYLIST_MENU):
+            self.reload()

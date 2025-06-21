@@ -2,8 +2,8 @@ import os
 import random
 import shutil
 
+from library.songLibrary import SongLibrary
 from osop.filehandler import FileHandler
-from songmaker import SongMaker
 
 
 class Playlist:
@@ -169,7 +169,7 @@ class Playlist:
 
     @classmethod
     def create_playlist(cls, name, image_url, songs, shuffle):
-        instance = cls(SongMaker.make_uid())
+        instance = cls(SongLibrary.make_uid())
         instance.name = name
         instance.image_url = image_url
         instance.shuffle = True

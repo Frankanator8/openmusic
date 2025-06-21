@@ -3,21 +3,22 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QScrollArea, QLab
     QLineEdit, QFileDialog, QCheckBox, QSizePolicy, QMessageBox
 import os
 
+from gui.globalUpdater import GlobalUpdater
 from gui.leftComponents.playlistmenu import PlaylistMenu
 from gui.leftComponents.songmenu import SongMenu
+from library.songLibrary import SongLibrary
 from util.playlist import Playlist
-from util.songmaker import SongMaker
 
 
 class LeftMenu(QWidget):
-    def __init__(self, osPlayer, centralScrollArea):
+    def __init__(self, osPlayer, globalUpdater):
         super().__init__()
         self.layout = QVBoxLayout()
+        self.globalUpdater = globalUpdater
         splitter = QSplitter(Qt.Vertical)
 
         self.osPlayer = osPlayer
-        self.centralScrollArea = centralScrollArea
-        self.playlistMenu = PlaylistMenu(osPlayer, centralScrollArea)
+        self.playlistMenu = PlaylistMenu(osPlayer, self.globalUpdater)
 
         self.topWidget = QWidget()
         topMenu = QVBoxLayout()
@@ -33,7 +34,7 @@ class LeftMenu(QWidget):
         hLayout.addWidget(newSong)
 
         scrollArea = QScrollArea()
-        self.songMenu = SongMenu(osPlayer, centralScrollArea, self.playlistMenu)
+        self.songMenu = SongMenu(osPlayer, self.globalUpdater)
         scrollArea.setWidget(self.songMenu)
         topMenu.addLayout(hLayout)
         topMenu.addWidget(scrollArea)
@@ -267,11 +268,11 @@ class LeftMenu(QWidget):
         if self.songNameEdit.text().strip() != "" and self.albumEdit.text().strip() != "" and \
                 self.artistEdit.text().strip() != "" and self.audio_file_label.text() != "" and \
                 self.image_file_label.text() != "":
-            SongMaker.make_song(self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
+            SongLibrary.make_song(self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
                                 self.image_file_label.text(), self.audio_file_label.text())
             self.createdSongs += 1
             self.resultLabel.setText(f"Success! Created {self.createdSongs} since start of session")
-            self.songMenu.reload()
+            self.globalUpdater.update(GlobalUpdater.SONG_MENU)
 
     def multi_button_update(self):
         enabled = False
@@ -494,7 +495,7 @@ class LeftMenu(QWidget):
                     name, artist, album = match_dict[matchdata]
                     audio_url = song_dict[match_dict[matchdata]]
                     image_url = i
-                    SongMaker.make_song(name, artist, album, image_url, audio_url)
+                    SongLibrary.make_song(name, artist, album, image_url, audio_url)
                     songsMade += 1
 
                 else:
@@ -504,8 +505,9 @@ class LeftMenu(QWidget):
                                              QMessageBox.Ok)
 
         self.resultLabel.setText(f"Success! Created {songsMade}")
-        self.songMenu.reload()
+        self.globalUpdater.update(GlobalUpdater.SONG_MENU)
 
     def new_playlist(self):
         new = Playlist.create_playlist("New playlist", "/Users/hanyangliu/Regular.png", [], True)
         self.playlistMenu.edit_playlist(new)
+

@@ -3,22 +3,20 @@ import os
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QFileDialog, \
     QSplitter, QScrollArea, QWidget, QListWidget, QListWidgetItem
-
-from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
 from gui.blocks.songBlock import SongBlock
+from gui.globalUpdater import GlobalUpdater
 from library.songLibrary import SongLibrary
 
 
 class PlaylistEditor(QDialog):
-    def __init__(self, playlist, playlistMenu, osPlayer, centralScrollArea):
-        super().__init__(playlistMenu)
-        self.playlistMenu = playlistMenu
+    def __init__(self, parent, globalUpdater, playlist, osPlayer):
+        super().__init__(parent)
+        self.globalUpdater = globalUpdater
         self.playlist = playlist
         self.setWindowTitle("Playlist Editor")
         self.setModal(True)
 
         self.osPlayer = osPlayer
-        self.centralScrollArea = centralScrollArea
 
         self.uidWidget = {}
         self.uidSongWidget = {}
@@ -155,7 +153,6 @@ class PlaylistEditor(QDialog):
 
             self.playlist.songs = songs
             self.playlist.save()
-            self.playlistMenu.reload()
-            self.centralScrollArea.widget().deleteLater()
-            self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, self.playlist.uid, self.playlistMenu))
+            self.globalUpdater.playlist_uid = self.playlist.uid
+            self.globalUpdater.update(GlobalUpdater.PLAYLIST_MENU | GlobalUpdater.CENTER_MENU)
 

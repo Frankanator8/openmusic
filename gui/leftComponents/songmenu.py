@@ -3,6 +3,7 @@ import os
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenu, QMessageBox
 
+from gui.globalUpdater import GlobalUpdater
 from osop.filehandler import FileHandler
 from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
 from gui.dialogs.songEditor import SongEditor
@@ -13,11 +14,10 @@ from library.songLibrary import SongLibrary
 
 
 class SongMenu(QWidget):
-    def __init__(self, osPlayer, centralScrollArea, playlistMenu):
+    def __init__(self, osPlayer, globalUpdater):
         super().__init__()
         self.osPlayer = osPlayer
-        self.centralScrollArea = centralScrollArea
-        self.playlistMenu = playlistMenu
+        self.globalUpdater = globalUpdater
         self.vlayout = QVBoxLayout()
         self.setLayout(self.vlayout)
 
@@ -86,22 +86,21 @@ class SongMenu(QWidget):
                     changed.append(playlist_id)
 
             if self.osPlayer.uid == uid:
-                self.osPlayer.toggle_play_pause()
-                self.osPlayer.player = None
+                self.osPlayer.stop()
 
-            if self.centralScrollArea.widget().playlist.uid in changed:
-                self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, self.centralScrollArea.widget().playlist.uid, self.playlistMenu))
-
-            self.reload()
+            self.globalUpdater.update(GlobalUpdater.CENTER_MENU | GlobalUpdater.SONG_MENU)
 
     def add_song_to_playlist(self, song_uid, playlist_uid):
         playlist = Playlist.load(playlist_uid)
         playlist.add_song(song_uid)
         playlist.save()
-        if self.centralScrollArea.widget().playlist.uid == playlist_uid:
-            self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, playlist_uid, self.playlistMenu))
+        self.globalUpdater.update(GlobalUpdater.CENTER_MENU)
 
     def edit(self, uid):
-        dialog = SongEditor(self, uid)
+        dialog = SongEditor(self, self.osPlayer, self.globalUpdater, uid)
         dialog.exec()
+
+    def check_update(self):
+        if self.globalUpdater.check_and_unset(GlobalUpdater.SONG_MENU):
+            self.reload()
 

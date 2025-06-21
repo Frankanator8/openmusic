@@ -2,15 +2,15 @@ import os
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 
+from gui.globalUpdater import GlobalUpdater
+from library.songLibrary import SongLibrary
 from osop.filehandler import FileHandler
-from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
-from util.songmaker import SongMaker
-
 
 class SongEditor(QDialog):
-    def __init__(self, songMenu, uid):
-        super().__init__(songMenu)
-        self.songMenu = songMenu
+    def __init__(self, parent, osPlayer, globalUpdater, uid):
+        super().__init__(parent)
+        self.osPlayer = osPlayer
+        self.globalUpdater = globalUpdater
         self.uid = uid
         image_url, audio_url, title, artist, album = self.load_data()
         self.myLayout = QVBoxLayout()
@@ -89,14 +89,11 @@ class SongEditor(QDialog):
 
 
     def save(self):
-        SongMaker.edit_song(self.uid, self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
+        SongLibrary.edit_song(self.uid, self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
                             self.image_file_label.text(), self.audio_file_label.text())
-        self.songMenu.reload()
-        self.songMenu.centralScrollArea.widget().deleteLater()
-        self.songMenu.centralScrollArea.setWidget(FullPlaylistDisplay(self.songMenu.osPlayer, self.songMenu.centralScrollArea.widget().uid, self.songMenu.playlistMenu))
-        if self.songMenu.osPlayer.uid == self.uid:
-            self.songMenu.osPlayer.toggle_play_pause()
-            self.songMenu.osPlayer.player = None
+        self.globalUpdater.update(GlobalUpdater.SONG_MENU | GlobalUpdater.CENTER_MENU)
+        if self.osPlayer.uid == self.uid:
+            self.osPlayer.stop()
 
         self.resultLabel.setText("Saved!")
 
