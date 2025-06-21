@@ -2,9 +2,9 @@ import os
 
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 
-from filehandler import FileHandler
-from gui.fullPlaylistWidget import FullPlaylistWidget
-from songmaker import SongMaker
+from osop.filehandler import FileHandler
+from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
+from util.songmaker import SongMaker
 
 
 class SongEditor(QDialog):
@@ -93,7 +93,7 @@ class SongEditor(QDialog):
                             self.image_file_label.text(), self.audio_file_label.text())
         self.songMenu.reload()
         self.songMenu.centralScrollArea.widget().deleteLater()
-        self.songMenu.centralScrollArea.setWidget(FullPlaylistWidget(self.songMenu.osPlayer, self.songMenu.centralScrollArea.widget().uid, self.songMenu.playlistMenu))
+        self.songMenu.centralScrollArea.setWidget(FullPlaylistDisplay(self.songMenu.osPlayer, self.songMenu.centralScrollArea.widget().uid, self.songMenu.playlistMenu))
         if self.songMenu.osPlayer.uid == self.uid:
             self.songMenu.osPlayer.toggle_play_pause()
             self.songMenu.osPlayer.player = None

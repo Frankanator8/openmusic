@@ -1,16 +1,16 @@
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QSizePolicy
-from gui.songWidget import SongWidget
-from playlist import Playlist
+from gui.blocks.songBlock import SongBlock
+from util.playlist import Playlist
 
 
-class FullPlaylistWidget(QWidget):
-    def __init__(self, osplayer, uid, parent):
+class FullPlaylistDisplay(QWidget):
+    def __init__(self, osplayer, uid, playlistMenu):
         super().__init__()
         self.osPlayer = osplayer
         self.myLayout = QVBoxLayout()
-        self.parentMenu = parent
+        self.playlistMenu = playlistMenu
         self.uid = uid
 
         if uid != "":
@@ -41,8 +41,9 @@ class FullPlaylistWidget(QWidget):
             self.myLayout.addLayout(hLayout)
             self.uidToIndex = {}
             for index, song in enumerate(self.playlist._songs):
-                widget = SongWidget(song)
+                widget = SongBlock(song)
                 widget.clicked.connect(self.play_song_in_playlist)
+
                 self.myLayout.addWidget(widget)
                 self.uidToIndex[song] = index
 
@@ -60,6 +61,6 @@ class FullPlaylistWidget(QWidget):
         self.osPlayer.play(self.playlist)
 
     def edit_curr_playlist(self):
-        self.parentMenu.edit_playlist(self.playlist)
+        self.playlistMenu.edit_playlist(self.playlist)
 
 

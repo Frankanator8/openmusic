@@ -3,13 +3,13 @@ import os
 from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenu, QMessageBox
 
-from filehandler import FileHandler
-from gui.fullPlaylistWidget import FullPlaylistWidget
-from gui.songEditor import SongEditor
-from gui.songWidget import SongWidget
-from playlist import Playlist
-from playlistLibrary import PlaylistLibrary
-from songLibrary import SongLibrary
+from osop.filehandler import FileHandler
+from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
+from gui.dialogs.songEditor import SongEditor
+from gui.blocks.songBlock import SongBlock
+from util.playlist import Playlist
+from library.playlistLibrary import PlaylistLibrary
+from library.songLibrary import SongLibrary
 
 
 class SongMenu(QWidget):
@@ -33,7 +33,7 @@ class SongMenu(QWidget):
                 child.widget().deleteLater()
 
         for i in SongLibrary.retrieve_songs():
-            widget = SongWidget(i)
+            widget = SongBlock(i)
             self.vlayout.addWidget(widget)
             widget.clicked.connect(self.play_song)
             widget.right_click.connect(self.open_context_sowidget)
@@ -63,7 +63,7 @@ class SongMenu(QWidget):
         menu.addMenu(add_more)
 
         sender_widget = self.sender()
-        if isinstance(sender_widget, SongWidget):
+        if isinstance(sender_widget, SongBlock):
             # Map the position from the sender widget to global coordinates
             global_pos = sender_widget.mapToGlobal(pos)
             menu.exec(global_pos)
@@ -90,7 +90,7 @@ class SongMenu(QWidget):
                 self.osPlayer.player = None
 
             if self.centralScrollArea.widget().playlist.uid in changed:
-                self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer,  self.centralScrollArea.widget().playlist.uid, self.playlistMenu))
+                self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, self.centralScrollArea.widget().playlist.uid, self.playlistMenu))
 
             self.reload()
 
@@ -99,7 +99,7 @@ class SongMenu(QWidget):
         playlist.add_song(song_uid)
         playlist.save()
         if self.centralScrollArea.widget().playlist.uid == playlist_uid:
-            self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, playlist_uid, self.playlistMenu))
+            self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, playlist_uid, self.playlistMenu))
 
     def edit(self, uid):
         dialog = SongEditor(self, uid)

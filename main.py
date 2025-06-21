@@ -2,13 +2,13 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from filehandler import FileHandler
+from osop.filehandler import FileHandler
 from PySide6.QtCore import QTimer
 
 from gui.mainGui import MainGui
-from osplayer import OSPlayer
-from playlist import Playlist
-from songLibrary import SongLibrary
+from osop.osplayer import OSPlayer
+from util.playlist import Playlist
+from library.songLibrary import SongLibrary
 
 app = QApplication(sys.argv)
 FileHandler.check_folder()

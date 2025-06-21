@@ -1,11 +1,11 @@
 from PySide6.QtGui import QAction
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QScrollArea, QMenu, QMessageBox
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenu, QMessageBox
 
-from gui.fullPlaylistWidget import FullPlaylistWidget
-from gui.playlistEditor import PlaylistEditor
-from gui.playlistWidget import PlaylistWidget
-from playlist import Playlist
-from playlistLibrary import PlaylistLibrary
+from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
+from gui.dialogs.playlistEditor import PlaylistEditor
+from gui.blocks.playlistBlock import PlaylistBlock
+from util.playlist import Playlist
+from library.playlistLibrary import PlaylistLibrary
 
 
 class PlaylistMenu(QWidget):
@@ -20,7 +20,7 @@ class PlaylistMenu(QWidget):
 
     def set_playlist_widget(self, uid):
         self.centralScrollArea.widget().deleteLater()
-        self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, uid, self))
+        self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, uid, self))
 
     def reload(self):
         while self.vlayout.count():
@@ -29,7 +29,7 @@ class PlaylistMenu(QWidget):
                 child.widget().deleteLater()
 
         for i in PlaylistLibrary.retrieve_playlists():
-            widget = PlaylistWidget(i)
+            widget = PlaylistBlock(i)
             widget.clicked.connect(self.set_playlist_widget)
             widget.right_click.connect(self.open_context_plwidget)
             self.vlayout.addWidget(widget)
@@ -46,7 +46,7 @@ class PlaylistMenu(QWidget):
             playlist.shuffle = not playlist.shuffle
             playlist.save()
             self.centralScrollArea.widget().deleteLater()
-            self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, playlist.uid, self))
+            self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, playlist.uid, self))
         menu = QMenu(self)
 
         # Add actions to the menu
@@ -67,7 +67,7 @@ class PlaylistMenu(QWidget):
         menu.addAction(info_action)
 
         sender_widget = self.sender()
-        if isinstance(sender_widget, PlaylistWidget):
+        if isinstance(sender_widget, PlaylistBlock):
             # Map the position from the sender widget to global coordinates
             global_pos = sender_widget.mapToGlobal(pos)
             menu.exec(global_pos)
@@ -81,7 +81,7 @@ class PlaylistMenu(QWidget):
             playlist.delete()
             self.reload()
             if self.centralScrollArea.widget().playlist.uid == playlist.uid:
-                self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, "", self))
+                self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, "", self))
 
             self.osPlayer.toggle_play_pause()
             self.osPlayer.player = None

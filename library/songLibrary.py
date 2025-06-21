@@ -1,6 +1,6 @@
 import os
 
-from filehandler import FileHandler
+from osop.filehandler import FileHandler
 
 
 class SongLibrary:

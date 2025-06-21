@@ -2,11 +2,11 @@ import os
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QCheckBox, QPushButton, QFileDialog, \
-    QSplitter, QScrollArea, QWidget, QListView, QScrollBar, QListWidget, QListWidgetItem
+    QSplitter, QScrollArea, QWidget, QListWidget, QListWidgetItem
 
-from gui.fullPlaylistWidget import FullPlaylistWidget
-from gui.songWidget import SongWidget
-from songLibrary import SongLibrary
+from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
+from gui.blocks.songBlock import SongBlock
+from library.songLibrary import SongLibrary
 
 
 class PlaylistEditor(QDialog):
@@ -58,7 +58,7 @@ class PlaylistEditor(QDialog):
         for i in SongLibrary.retrieve_songs():
             hori = QHBoxLayout()
             hori.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            widget = SongWidget(i)
+            widget = SongBlock(i)
             checkbox = QCheckBox()
             if i in playlist.songs:
                 checkbox.toggle()
@@ -82,7 +82,7 @@ class PlaylistEditor(QDialog):
 
         for i in playlist.songs:
             item = QListWidgetItem()
-            song_widget = SongWidget(i)
+            song_widget = SongBlock(i)
             item.setSizeHint(song_widget.sizeHint())
             self.uidWidget[i] = item
             self.uidSongWidget[i] = song_widget
@@ -126,7 +126,7 @@ class PlaylistEditor(QDialog):
 
         else:
             item = QListWidgetItem()
-            song_widget = SongWidget(song_uid)
+            song_widget = SongBlock(song_uid)
             item.setSizeHint(song_widget.sizeHint())
             self.uidWidget[song_uid] = item
             self.uidSongWidget[song_uid] = song_widget
@@ -157,5 +157,5 @@ class PlaylistEditor(QDialog):
             self.playlist.save()
             self.playlistMenu.reload()
             self.centralScrollArea.widget().deleteLater()
-            self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, self.playlist.uid, self.playlistMenu))
+            self.centralScrollArea.setWidget(FullPlaylistDisplay(self.osPlayer, self.playlist.uid, self.playlistMenu))
 

@@ -1,10 +1,8 @@
 import os
 import random
 import shutil
-import uuid
-from operator import truediv
 
-from filehandler import FileHandler
+from osop.filehandler import FileHandler
 from songmaker import SongMaker
 
 

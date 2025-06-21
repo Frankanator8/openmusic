@@ -4,7 +4,7 @@ from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout, QPushButton
 
-from gui.playlistWidget import PlaylistWidget
+from gui.blocks.playlistBlock import PlaylistBlock
 
 
 class RightMenu(QWidget):
@@ -44,7 +44,7 @@ class RightMenu(QWidget):
 
         self.playlistLabel = QLabel()
         self.playlistLabel.setText("Part of playlist:")
-        self.playlistWidget = PlaylistWidget("")
+        self.playlistWidget = PlaylistBlock("")
         self.myLayout.addWidget(self.playlistLabel)
         self.myLayout.addWidget(self.playlistWidget)
 

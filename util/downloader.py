@@ -2,7 +2,7 @@ import os
 
 from yt_dlp import YoutubeDL
 import uuid
-from filehandler import FileHandler
+from osop.filehandler import FileHandler
 from moviepy import *
 from PIL import Image
 

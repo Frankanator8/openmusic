@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import *
 
-from gui.fullPlaylistWidget import FullPlaylistWidget
-from gui.leftMenu import LeftMenu
-from gui.rightMenu import RightMenu
+from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
+from gui.leftComponents.leftMenu import LeftMenu
+from gui.rightComponents.rightMenu import RightMenu
 
 
 class MainGui(QWidget):
@@ -18,7 +18,7 @@ class MainGui(QWidget):
         self.layout.addWidget(splitter)
         self.leftMenu = LeftMenu(osPlayer, centralScrollArea)
         splitter.addWidget(self.leftMenu)
-        centralScrollArea.setWidget(FullPlaylistWidget(osPlayer, "", self.leftMenu.playlistMenu))
+        centralScrollArea.setWidget(FullPlaylistDisplay(osPlayer, "", self.leftMenu.playlistMenu))
 
         splitter.addWidget(centralScrollArea)
         splitter.addWidget(self.rightMenu)

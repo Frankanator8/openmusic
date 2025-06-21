@@ -3,7 +3,7 @@ import uuid
 
 import moviepy
 
-from filehandler import FileHandler
+from osop.filehandler import FileHandler
 
 
 class SongMaker:

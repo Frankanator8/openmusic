@@ -1,17 +1,18 @@
-from PySide6.QtCore import QSize, Signal, Qt
+from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout, QLayout
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 
-from filehandler import FileHandler
+from osop.filehandler import FileHandler
 
 
-class PlaylistWidget(QWidget):
+class SongBlock(QWidget):
     clicked = Signal(str)
     right_click = Signal(tuple, str)
+
     def __init__(self, uid):
         super().__init__()
         self.uid = uid
-        image_url, title = self.load_data()
+        image_url, title, artist, album = self.load_data()
 
         self.layout = QHBoxLayout()
         self.albumCover = QLabel()
@@ -21,10 +22,13 @@ class PlaylistWidget(QWidget):
 
         self.title = QLabel()
         self.title.setText(title)
+        self.artistAndAlbum = QLabel()
+        self.artistAndAlbum.setText(f"{artist} ({album})")
         self.layout.addWidget(self.albumCover)
 
         textLayout = QVBoxLayout()
         textLayout.addWidget(self.title)
+        textLayout.addWidget(self.artistAndAlbum)
         self.layout.addLayout(textLayout)
         self.setLayout(self.layout)
 
@@ -34,31 +38,22 @@ class PlaylistWidget(QWidget):
         for child in self.findChildren(QLabel):
             child.setCursor(Qt.PointingHandCursor)
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)  # Enable context menu
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(lambda pos: self.right_click.emit(pos, self.uid))
 
 
     def load_data(self):
-        if self.uid != "":
-            image_url = f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png"
-            with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt") as f:
-                title = f.readline()
+        image_url = f"{FileHandler.SONG_DATA}/{self.uid}.png"
+        with open(f"{FileHandler.SONG_DATA}/{self.uid}.txt") as f:
+            title = f.readline().strip()
+            artist = f.readline().strip()
+            album = f.readline().strip()
 
-        else:
-            image_url = "img/x.png"
-            title = "(no playlist)"
-
-        return image_url, title
+        return image_url, title, artist, album
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.clicked.emit(self.uid)
         elif event.button() == Qt.RightButton:
             return event.accept()
-        super().mousePressEvent(event)  # Call parent class implementation
-
-    def updateUID(self, uid):
-        self.uid = uid
-        image_url, title = self.load_data()
-        self.albumCover.setPixmap(QPixmap(image_url))
-        self.title.setText(title)
+        super().mousePressEvent(event)

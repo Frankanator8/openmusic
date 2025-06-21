@@ -14,7 +14,7 @@ from MediaPlayer import (
 )
 from AppKit import NSImage, NSApplication
 from filehandler import FileHandler
-from playlist import Playlist
+from util.playlist import Playlist
 
 
 class OSPlayer:

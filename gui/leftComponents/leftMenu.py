@@ -1,19 +1,12 @@
-import shutil
-import uuid
-from operator import truediv
-
-import moviepy
-from PySide6.QtCore import Qt, QTimer
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QScrollArea, QLabel, QHBoxLayout, QPushButton, QDialog, \
-    QFormLayout, QLineEdit, QFileDialog, QCheckBox, QSizePolicy, QMessageBox
+    QLineEdit, QFileDialog, QCheckBox, QSizePolicy, QMessageBox
 import os
 
-from filehandler import FileHandler
-from gui.playlistEditor import PlaylistEditor
-from gui.playlistmenu import PlaylistMenu
-from gui.songmenu import SongMenu
-from playlist import Playlist
-from songmaker import SongMaker
+from gui.leftComponents.playlistmenu import PlaylistMenu
+from gui.leftComponents.songmenu import SongMenu
+from util.playlist import Playlist
+from util.songmaker import SongMaker
 
 
 class LeftMenu(QWidget):
