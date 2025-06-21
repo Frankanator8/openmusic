@@ -8,7 +8,7 @@ from PySide6.QtCore import QTimer
 from gui.mainGui import MainGui
 from osop.osplayer import OSPlayer
 from util.playlist import Playlist
-from library.songLibrary import SongLibrary
+from util.songs import Songs
 
 app = QApplication(sys.argv)
 FileHandler.check_folder()
@@ -16,7 +16,7 @@ playlist = Playlist.load("0a4543711e9448f59c43e70940d9dde8")
 
 player = OSPlayer()
 
-songs = SongLibrary.retrieve_songs()
+songs = Songs.retrieve_songs()
 # a = VideoDownload("undertale ost 071", search=True)
 # a.download()
 # print(a.uid)

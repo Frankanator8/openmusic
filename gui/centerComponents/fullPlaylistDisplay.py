@@ -7,9 +7,9 @@ from util.playlist import Playlist
 
 
 class FullPlaylistDisplay(QWidget):
-    def __init__(self, globalUpdater, osplayer, uid):
+    def __init__(self, globalUpdater, osPlayer, uid):
         super().__init__()
-        self.osPlayer = osplayer
+        self.osPlayer = osPlayer
         self.globalUpdater = globalUpdater
         self.myLayout = QVBoxLayout()
         self.uid = uid
@@ -62,7 +62,7 @@ class FullPlaylistDisplay(QWidget):
         self.osPlayer.play(self.playlist)
 
     def edit_curr_playlist(self):
-        dialog = PlaylistEditor(self, self.globalUpdater, self.playlist, self.osPlayer)
+        dialog = PlaylistEditor(self, self.globalUpdater, self.osPlayer, self.playlist)
         dialog.exec()
 
 

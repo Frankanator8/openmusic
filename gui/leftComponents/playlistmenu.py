@@ -4,17 +4,16 @@ from gui.dialogs.playlistEditor import PlaylistEditor
 from gui.blocks.playlistBlock import PlaylistBlock
 from gui.globalUpdater import GlobalUpdater
 from util.playlist import Playlist
-from library.playlistLibrary import PlaylistLibrary
 
 
 class PlaylistMenu(QWidget):
-    def __init__(self, osplayer, globalUpdater):
+    def __init__(self, globalUpdater, osplayer):
         super().__init__()
-        self.vlayout = QVBoxLayout()
+        self.myLayout = QVBoxLayout()
         self.globalUpdater = globalUpdater
         self.osPlayer = osplayer
         self.reload()
-        self.setLayout(self.vlayout)
+        self.setLayout(self.myLayout)
         self.adjustSize()
 
     def set_playlist_widget(self, uid):
@@ -22,21 +21,21 @@ class PlaylistMenu(QWidget):
         self.globalUpdater.update(GlobalUpdater.CENTER_MENU)
 
     def reload(self):
-        while self.vlayout.count():
-            child = self.vlayout.takeAt(0)
+        while self.myLayout.count():
+            child = self.myLayout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
-        for i in PlaylistLibrary.retrieve_playlists():
+        for i in Playlist.retrieve_playlists():
             widget = PlaylistBlock(i)
             widget.clicked.connect(self.set_playlist_widget)
             widget.right_click.connect(self.open_context_plwidget)
-            self.vlayout.addWidget(widget)
+            self.myLayout.addWidget(widget)
 
         self.updateGeometry()
 
     def edit_playlist(self, playlist):
-        dialog = PlaylistEditor(self, self.globalUpdater, playlist, self.osPlayer)
+        dialog = PlaylistEditor(self, self.globalUpdater, self.osPlayer, playlist)
         dialog.exec()
 
     def open_context_plwidget(self, pos, uid):

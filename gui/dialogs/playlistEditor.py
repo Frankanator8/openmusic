@@ -5,11 +5,11 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEd
     QSplitter, QScrollArea, QWidget, QListWidget, QListWidgetItem
 from gui.blocks.songBlock import SongBlock
 from gui.globalUpdater import GlobalUpdater
-from library.songLibrary import SongLibrary
+from util.songs import Songs
 
 
 class PlaylistEditor(QDialog):
-    def __init__(self, parent, globalUpdater, playlist, osPlayer):
+    def __init__(self, parent, globalUpdater, osPlayer, playlist):
         super().__init__(parent)
         self.globalUpdater = globalUpdater
         self.playlist = playlist
@@ -53,7 +53,7 @@ class PlaylistEditor(QDialog):
 
         splitter = QSplitter()
         songLayout = QVBoxLayout()
-        for i in SongLibrary.retrieve_songs():
+        for i in Songs.retrieve_songs():
             hori = QHBoxLayout()
             hori.setAlignment(Qt.AlignmentFlag.AlignLeft)
             widget = SongBlock(i)

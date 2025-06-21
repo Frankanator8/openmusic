@@ -2,7 +2,7 @@ import os
 import random
 import shutil
 
-from library.songLibrary import SongLibrary
+from util.songs import Songs
 from osop.filehandler import FileHandler
 
 
@@ -169,7 +169,7 @@ class Playlist:
 
     @classmethod
     def create_playlist(cls, name, image_url, songs, shuffle):
-        instance = cls(SongLibrary.make_uid())
+        instance = cls(Songs.make_uid())
         instance.name = name
         instance.image_url = image_url
         instance.shuffle = True
@@ -183,3 +183,25 @@ class Playlist:
         os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt")
         os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png")
 
+    @classmethod
+    def retrieve_playlists(cls):
+        playlist_lib = {}
+        for file in os.listdir(FileHandler.PLAYLIST_DATA):
+            if file != ".DS_Store":
+                uid = file.split(".")[0]
+                if uid not in playlist_lib.keys():
+                    playlist_lib[uid] = [False, False]
+
+                if file.endswith(".txt"):
+                    playlist_lib[uid][0] = True
+
+                if file.endswith(".png"):
+                    playlist_lib[uid][1] = True
+
+
+        playlists = []
+        for key, value in playlist_lib.items():
+            if all(value):
+                playlists.append(key)
+
+        return playlists

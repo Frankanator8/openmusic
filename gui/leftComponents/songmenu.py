@@ -5,16 +5,14 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenu, QMessageBox
 
 from gui.globalUpdater import GlobalUpdater
 from osop.filehandler import FileHandler
-from gui.centerComponents.fullPlaylistDisplay import FullPlaylistDisplay
 from gui.dialogs.songEditor import SongEditor
 from gui.blocks.songBlock import SongBlock
 from util.playlist import Playlist
-from library.playlistLibrary import PlaylistLibrary
-from library.songLibrary import SongLibrary
+from util.songs import Songs
 
 
 class SongMenu(QWidget):
-    def __init__(self, osPlayer, globalUpdater):
+    def __init__(self, globalUpdater, osPlayer):
         super().__init__()
         self.osPlayer = osPlayer
         self.globalUpdater = globalUpdater
@@ -32,7 +30,7 @@ class SongMenu(QWidget):
             if child.widget():
                 child.widget().deleteLater()
 
-        for i in SongLibrary.retrieve_songs():
+        for i in Songs.retrieve_songs():
             widget = SongBlock(i)
             self.vlayout.addWidget(widget)
             widget.clicked.connect(self.play_song)
@@ -56,7 +54,7 @@ class SongMenu(QWidget):
 
         # Add more actions as needed
         add_more = QMenu("Add to playlist", self)
-        for playlist in PlaylistLibrary.retrieve_playlists():
+        for playlist in Playlist.retrieve_playlists():
             playlistAction = QAction(Playlist.load(playlist).name, self)
             playlistAction.triggered.connect(lambda : self.add_song_to_playlist(uid, playlist))
             add_more.addAction(playlistAction)
@@ -78,7 +76,7 @@ class SongMenu(QWidget):
             os.remove(f"{FileHandler.AUDIOS}/{uid}.mp3")
             os.remove(f"{FileHandler.SONG_DATA}/{uid}.png")
             changed = []
-            for playlist_id in PlaylistLibrary.retrieve_playlists():
+            for playlist_id in Playlist.retrieve_playlists():
                 playlist = Playlist.load(playlist_id)
                 if uid in playlist.songs:
                     playlist.remove_song(uid)
@@ -97,7 +95,7 @@ class SongMenu(QWidget):
         self.globalUpdater.update(GlobalUpdater.CENTER_MENU)
 
     def edit(self, uid):
-        dialog = SongEditor(self, self.osPlayer, self.globalUpdater, uid)
+        dialog = SongEditor(self, self.globalUpdater, self.osPlayer, uid)
         dialog.exec()
 
     def check_update(self):

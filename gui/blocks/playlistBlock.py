@@ -13,20 +13,21 @@ class PlaylistBlock(QWidget):
         self.uid = uid
         image_url, title = self.load_data()
 
-        self.layout = QHBoxLayout()
+        self.myLayout = QHBoxLayout()
+
         self.albumCover = QLabel()
         self.albumCover.setPixmap(QPixmap(image_url))
         self.albumCover.setMaximumSize(QSize(64, 64))
         self.albumCover.setScaledContents(True)
-
-        self.title = QLabel()
-        self.title.setText(title)
-        self.layout.addWidget(self.albumCover)
+        self.myLayout.addWidget(self.albumCover)
 
         textLayout = QVBoxLayout()
+        self.title = QLabel()
+        self.title.setText(title)
         textLayout.addWidget(self.title)
-        self.layout.addLayout(textLayout)
-        self.setLayout(self.layout)
+        self.myLayout.addLayout(textLayout)
+
+        self.setLayout(self.myLayout)
 
         self.setCursor(Qt.PointingHandCursor)
         self.setAttribute(Qt.WA_Hover)

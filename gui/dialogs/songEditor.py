@@ -3,16 +3,16 @@ import os
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QFileDialog
 
 from gui.globalUpdater import GlobalUpdater
-from library.songLibrary import SongLibrary
+from util.songs import Songs
 from osop.filehandler import FileHandler
 
 class SongEditor(QDialog):
-    def __init__(self, parent, osPlayer, globalUpdater, uid):
+    def __init__(self, parent, globalUpdater, osPlayer, uid):
         super().__init__(parent)
         self.osPlayer = osPlayer
         self.globalUpdater = globalUpdater
         self.uid = uid
-        image_url, audio_url, title, artist, album = self.load_data()
+        image_url, audio_url, title, artist, album = Songs.load_song_data(self.uid)
         self.myLayout = QVBoxLayout()
         hLayout = QHBoxLayout()
         hLayout.addWidget(QLabel("Name"))
@@ -89,24 +89,13 @@ class SongEditor(QDialog):
 
 
     def save(self):
-        SongLibrary.edit_song(self.uid, self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
-                            self.image_file_label.text(), self.audio_file_label.text())
+        Songs.edit_song(self.uid, self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
+                        self.image_file_label.text(), self.audio_file_label.text())
         self.globalUpdater.update(GlobalUpdater.SONG_MENU | GlobalUpdater.CENTER_MENU)
         if self.osPlayer.uid == self.uid:
             self.osPlayer.stop()
 
         self.resultLabel.setText("Saved!")
-
-
-    def load_data(self):
-        image_url = f"{FileHandler.SONG_DATA}/{self.uid}.png"
-        audio_url = f"{FileHandler.AUDIOS}/{self.uid}.mp3"
-        with open(f"{FileHandler.SONG_DATA}/{self.uid}.txt") as f:
-            title = f.readline().strip()
-            artist = f.readline().strip()
-            album = f.readline().strip()
-
-        return image_url, audio_url, title, artist, album
 
     def request_audio(self):
         fileName = QFileDialog.getOpenFileName(self, "Open File", str(os.path.expanduser("~")),"Audio (*.mp3)")

@@ -16,8 +16,8 @@ class MainGui(QWidget):
         self.layout = QVBoxLayout()
         self.globalUpdater = GlobalUpdater()
 
-        self.leftMenu = LeftMenu(osPlayer, self.globalUpdater)
-        self.center = CenterScrollArea(osPlayer, self.globalUpdater)
+        self.leftMenu = LeftMenu(self.globalUpdater, osPlayer)
+        self.center = CenterScrollArea(self.globalUpdater, osPlayer)
         self.rightMenu = RightMenu(osPlayer)
 
         splitter = QSplitter()

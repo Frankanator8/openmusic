@@ -5,7 +5,7 @@ from gui.globalUpdater import GlobalUpdater
 
 
 class CenterScrollArea(QScrollArea):
-    def __init__(self, osPlayer, globalUpdater):
+    def __init__(self, globalUpdater, osPlayer):
         super().__init__()
         self.globalUpdater = globalUpdater
         self.osPlayer = osPlayer

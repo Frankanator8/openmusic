@@ -6,19 +6,19 @@ import os
 from gui.globalUpdater import GlobalUpdater
 from gui.leftComponents.playlistmenu import PlaylistMenu
 from gui.leftComponents.songmenu import SongMenu
-from library.songLibrary import SongLibrary
+from util.songs import Songs
 from util.playlist import Playlist
 
 
 class LeftMenu(QWidget):
-    def __init__(self, osPlayer, globalUpdater):
+    def __init__(self, globalUpdater, osPlayer):
         super().__init__()
-        self.layout = QVBoxLayout()
+        self.myLayout = QVBoxLayout()
         self.globalUpdater = globalUpdater
         splitter = QSplitter(Qt.Vertical)
 
         self.osPlayer = osPlayer
-        self.playlistMenu = PlaylistMenu(osPlayer, self.globalUpdater)
+        self.playlistMenu = PlaylistMenu(self.globalUpdater, osPlayer)
 
         self.topWidget = QWidget()
         topMenu = QVBoxLayout()
@@ -34,7 +34,7 @@ class LeftMenu(QWidget):
         hLayout.addWidget(newSong)
 
         scrollArea = QScrollArea()
-        self.songMenu = SongMenu(osPlayer, self.globalUpdater)
+        self.songMenu = SongMenu(self.globalUpdater, osPlayer)
         scrollArea.setWidget(self.songMenu)
         topMenu.addLayout(hLayout)
         topMenu.addWidget(scrollArea)
@@ -62,8 +62,8 @@ class LeftMenu(QWidget):
         self.bottomWidget.setLayout(bottomMenu)
         splitter.addWidget(self.bottomWidget)
 
-        self.layout.addWidget(splitter)
-        self.setLayout(self.layout)
+        self.myLayout.addWidget(splitter)
+        self.setLayout(self.myLayout)
         self.createdSongs = 0
 
     def new_song(self):
@@ -268,8 +268,8 @@ class LeftMenu(QWidget):
         if self.songNameEdit.text().strip() != "" and self.albumEdit.text().strip() != "" and \
                 self.artistEdit.text().strip() != "" and self.audio_file_label.text() != "" and \
                 self.image_file_label.text() != "":
-            SongLibrary.make_song(self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
-                                self.image_file_label.text(), self.audio_file_label.text())
+            Songs.make_song(self.songNameEdit.text().strip(), self.artistEdit.text().strip(), self.albumEdit.text().strip(),
+                            self.image_file_label.text(), self.audio_file_label.text())
             self.createdSongs += 1
             self.resultLabel.setText(f"Success! Created {self.createdSongs} since start of session")
             self.globalUpdater.update(GlobalUpdater.SONG_MENU)
@@ -495,7 +495,7 @@ class LeftMenu(QWidget):
                     name, artist, album = match_dict[matchdata]
                     audio_url = song_dict[match_dict[matchdata]]
                     image_url = i
-                    SongLibrary.make_song(name, artist, album, image_url, audio_url)
+                    Songs.make_song(name, artist, album, image_url, audio_url)
                     songsMade += 1
 
                 else:

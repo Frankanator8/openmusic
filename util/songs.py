@@ -7,10 +7,11 @@ import moviepy
 from osop.filehandler import FileHandler
 
 
-class SongLibrary:
+class Songs:
     @classmethod
-    def retrieve_songs(cls):
+    def retrieve_songs(cls, alphabet=True):
         song_lib = {}
+        song_name = {}
         for file in os.listdir(FileHandler.SONG_DATA):
             if file != ".DS_Store":
                 uid = file.split(".")[0]
@@ -19,6 +20,9 @@ class SongLibrary:
 
                 if file.endswith(".txt"):
                     song_lib[uid][0] = True
+                    if alphabet:
+                        _, _, name, _, _ = cls.load_song_data(uid)
+                        song_name[uid] = name
 
                 if file.endswith(".png"):
                     song_lib[uid][1] = True
@@ -32,6 +36,9 @@ class SongLibrary:
         for key, value in song_lib.items():
             if all(value):
                 songs.append(key)
+
+        if alphabet:
+            songs.sort(key=lambda x: song_name[x])
 
         return songs
 
@@ -54,3 +61,14 @@ class SongLibrary:
             clip.write_audiofile(f"{FileHandler.AUDIOS}/{uid}.mp3")
         if image_url != f"{FileHandler.SONG_DATA}/{uid}.png":
             shutil.copyfile(image_url, f"{FileHandler.SONG_DATA}/{uid}.png")
+
+    @classmethod
+    def load_song_data(cls, uid):
+        image_url = f"{FileHandler.SONG_DATA}/{uid}.png"
+        audio_url = f"{FileHandler.AUDIOS}/{uid}.mp3"
+        with open(f"{FileHandler.SONG_DATA}/{uid}.txt") as f:
+            title = f.readline().strip()
+            artist = f.readline().strip()
+            album = f.readline().strip()
+
+        return image_url, audio_url, title, artist, album
