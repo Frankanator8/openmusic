@@ -11,6 +11,7 @@ class FullPlaylistWidget(QWidget):
         self.osPlayer = osplayer
         self.myLayout = QVBoxLayout()
         self.parentMenu = parent
+        self.uid = uid
 
         if uid != "":
             self.playlist = Playlist.load(uid)

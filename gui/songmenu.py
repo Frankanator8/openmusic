@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenu, QMessageBox
 
 from filehandler import FileHandler
 from gui.fullPlaylistWidget import FullPlaylistWidget
+from gui.songEditor import SongEditor
 from gui.songWidget import SongWidget
 from playlist import Playlist
 from playlistLibrary import PlaylistLibrary
@@ -42,8 +43,9 @@ class SongMenu(QWidget):
         menu = QMenu(self)
 
         # Add actions to the menu
-        rename_action = QAction("Edit", self)
-        menu.addAction(rename_action)
+        edit_action = QAction("Edit", self)
+        edit_action.triggered.connect(lambda: self.edit(uid))
+        menu.addAction(edit_action)
 
         delete_action = QAction("Delete", self)
         delete_action.triggered.connect(lambda: self.delete_song(uid))
@@ -98,4 +100,8 @@ class SongMenu(QWidget):
         playlist.save()
         if self.centralScrollArea.widget().playlist.uid == playlist_uid:
             self.centralScrollArea.setWidget(FullPlaylistWidget(self.osPlayer, playlist_uid, self.playlistMenu))
+
+    def edit(self, uid):
+        dialog = SongEditor(self, uid)
+        dialog.exec()
 
