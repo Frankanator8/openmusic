@@ -1,7 +1,7 @@
 import math
 
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QShortcut, QKeySequence
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QSlider, QHBoxLayout, QPushButton
 
 from gui.blocks.playlistBlock import PlaylistBlock
@@ -80,6 +80,8 @@ class RightMenu(QWidget):
         self.setLayout(self.myLayout)
 
         self.lastPlayedSong = ""
+        self.space_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
+        self.space_shortcut.activated.connect(self.toggle_play)
 
     def update_gui(self):
         if self.osPlayer.player:
