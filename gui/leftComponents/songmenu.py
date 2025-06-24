@@ -4,7 +4,6 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QMenu, QMessageBox
 
 from gui.globalUpdater import GlobalUpdater
-from osop.filehandler import FileHandler
 from gui.dialogs.songEditor import SongEditor
 from gui.blocks.songBlock import SongBlock
 from util.playlist import Playlist
@@ -72,9 +71,7 @@ class SongMenu(QWidget):
     def delete_song(self, uid):
         message = QMessageBox.critical(self, "Really delete?", f"Really delete this song and from all playlists? This action is irreversible", QMessageBox.Ok | QMessageBox.Cancel)
         if message == QMessageBox.Ok:
-            os.remove(f"{FileHandler.SONG_DATA}/{uid}.txt")
-            os.remove(f"{FileHandler.AUDIOS}/{uid}.mp3")
-            os.remove(f"{FileHandler.SONG_DATA}/{uid}.png")
+            Songs.delete_song(uid)
             changed = []
             for playlist_id in Playlist.retrieve_playlists():
                 playlist = Playlist.load(playlist_id)

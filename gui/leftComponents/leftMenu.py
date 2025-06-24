@@ -508,6 +508,6 @@ class LeftMenu(QWidget):
         self.globalUpdater.update(GlobalUpdater.SONG_MENU)
 
     def new_playlist(self):
-        new = Playlist.create_playlist("New playlist", "/Users/hanyangliu/Regular.png", [], True)
+        new = Playlist.create_playlist("New playlist", "", [], True)
         self.playlistMenu.edit_playlist(new)
 

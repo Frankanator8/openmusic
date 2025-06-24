@@ -79,13 +79,17 @@ class RightMenu(QWidget):
 
         self.setLayout(self.myLayout)
 
+        self.lastPlayedSong = ""
+
     def update_gui(self):
         if self.osPlayer.player:
             self.block_slider = True
-            self.title.setText(self.osPlayer.title)
-            self.artist.setText(self.osPlayer.artist)
-            self.album.setText(self.osPlayer.album)
-            self.image.setPixmap(QPixmap(self.osPlayer.artwork_path))
+            if self.lastPlayedSong != self.osPlayer.uid:
+                self.title.setText(self.osPlayer.title)
+                self.artist.setText(self.osPlayer.artist)
+                self.album.setText(self.osPlayer.album)
+                self.image.setPixmap(QPixmap(self.osPlayer.artwork_path))
+                self.lastPlayedSong = self.osPlayer.uid
             duration = self.osPlayer.duration
             self.timeTotal.setText(f"{math.floor(duration//60)}:{'0' if math.floor(duration%60) < 10 else ''}{math.floor(duration%60)}")
             time = self.osPlayer.player.currentTime()
@@ -132,6 +136,7 @@ class RightMenu(QWidget):
             self.playlistWidget.updateUID("")
             self.playlistLabel.setText("Not a part of a playlist")
             self.image.setPixmap(QPixmap("img/x.png"))
+            self.lastPlayedSong = ""
 
     def seek_time(self, value):
         if self.osPlayer.player and not self.block_slider:

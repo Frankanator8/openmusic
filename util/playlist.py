@@ -7,6 +7,7 @@ from osop.filehandler import FileHandler
 
 
 class Playlist:
+    cache = {}
     def __init__(self, uid):
         self.uid = uid
         self._songs = []
@@ -17,6 +18,8 @@ class Playlist:
         self._index = 0
         self.last_tracks = []
         self._guaranteedNext = -1
+        print(uid)
+        Playlist.cache[uid] = self
 
     def add_song(self, song_id):
         self._songs.append(song_id)
@@ -95,31 +98,35 @@ class Playlist:
 
     @classmethod
     def load(cls, uid):
-        instance = cls(uid)
-        with open(f"{FileHandler.PLAYLIST_DATA}/{uid}.txt") as f:
-            lines = f.readlines()
+        if uid in cls.cache:
+            return cls.cache[uid]
 
-        for index, line in enumerate(lines):
-            line = line.strip()
-            if index == 0:
-                instance._name = line
+        else:
+            instance = cls(uid)
+            with open(f"{FileHandler.PLAYLIST_DATA}/{uid}.txt") as f:
+                lines = f.readlines()
 
-            elif index == 1:
-                instance._shuffle = True if line == "1" else False
+            for index, line in enumerate(lines):
+                line = line.strip()
+                if index == 0:
+                    instance._name = line
 
-            elif index == 2:
-                instance._index = int(line)
+                elif index == 1:
+                    instance._shuffle = True if line == "1" else False
 
-            elif index == 3:
-                pass
+                elif index == 2:
+                    instance._index = int(line)
 
-            else:
-                instance._songs.append(line)
+                elif index == 3:
+                    pass
 
-        instance._image_url = f"{FileHandler.PLAYLIST_DATA}/{uid}.png"
-        instance._changed = False
+                else:
+                    instance._songs.append(line)
 
-        return instance
+            instance._image_url = f"{FileHandler.PLAYLIST_DATA}/{uid}.png"
+            instance._changed = False
+
+            return instance
 
     def request_next_track(self):
         self.last_tracks.append(self._index)
@@ -172,7 +179,7 @@ class Playlist:
         instance = cls(Songs.make_uid())
         instance.name = name
         instance.image_url = image_url
-        instance.shuffle = True
+        instance.shuffle = shuffle
 
         for song in songs:
             instance.add_song(song)
@@ -182,26 +189,53 @@ class Playlist:
     def delete(self):
         os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt")
         os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png")
+        del Playlist.cache[self.uid]
 
     @classmethod
-    def retrieve_playlists(cls):
-        playlist_lib = {}
-        for file in os.listdir(FileHandler.PLAYLIST_DATA):
-            if file != ".DS_Store":
-                uid = file.split(".")[0]
-                if uid not in playlist_lib.keys():
-                    playlist_lib[uid] = [False, False]
+    def retrieve_playlists(cls, force_no_cache=False):
+        if cls.cache == {} or force_no_cache:
+            print("no cache")
+            playlist_lib = {}
+            for file in os.listdir(FileHandler.PLAYLIST_DATA):
+                if file != ".DS_Store":
+                    uid = file.split(".")[0]
+                    if uid not in playlist_lib.keys():
+                        playlist_lib[uid] = [False, False]
 
-                if file.endswith(".txt"):
-                    playlist_lib[uid][0] = True
+                    if file.endswith(".txt"):
+                        playlist_lib[uid][0] = True
 
-                if file.endswith(".png"):
-                    playlist_lib[uid][1] = True
+                    if file.endswith(".png"):
+                        playlist_lib[uid][1] = True
 
 
-        playlists = []
-        for key, value in playlist_lib.items():
-            if all(value):
+            playlists = []
+            for key, value in playlist_lib.items():
+                if all(value):
+                    playlists.append(key)
+                    Playlist.load(key)
+
+            return playlists
+
+        else:
+            playlists = []
+            for key in cls.cache.keys():
                 playlists.append(key)
+            return playlists
 
-        return playlists
+
+    @classmethod
+    def retrieve_quick_data(cls, uid):
+        if uid != "":
+            if uid not in cls.cache.keys():
+                Playlist.load(uid)
+
+
+            image_url = cls.cache[uid].image_url
+            title = cls.cache[uid].name
+
+        else:
+            image_url = "img/x.png"
+            title = "(no playlist)"
+
+        return image_url, title

@@ -12,15 +12,9 @@ from util.songs import Songs
 
 app = QApplication(sys.argv)
 FileHandler.check_folder()
-playlist = Playlist.load("0a4543711e9448f59c43e70940d9dde8")
-
 player = OSPlayer()
 
 songs = Songs.retrieve_songs()
-# a = VideoDownload("undertale ost 071", search=True)
-# a.download()
-# print(a.uid)
-
 gui_timer = QTimer()
 gui_timer.timeout.connect(player.update)
 gui_timer.start(50)

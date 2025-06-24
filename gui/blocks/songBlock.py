@@ -3,8 +3,6 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
 
 from util.songs import Songs
-from osop.filehandler import FileHandler
-
 
 class SongBlock(QWidget):
     clicked = Signal(str)

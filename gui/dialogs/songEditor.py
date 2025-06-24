@@ -4,7 +4,6 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QLabel, QLineEd
 
 from gui.globalUpdater import GlobalUpdater
 from util.songs import Songs
-from osop.filehandler import FileHandler
 
 class SongEditor(QDialog):
     def __init__(self, parent, globalUpdater, osPlayer, uid):

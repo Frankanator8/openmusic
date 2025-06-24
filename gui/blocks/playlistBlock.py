@@ -1,8 +1,7 @@
 from PySide6.QtCore import QSize, Signal, Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QVBoxLayout
-
-from osop.filehandler import FileHandler
+from util.playlist import Playlist
 
 
 class PlaylistBlock(QWidget):
@@ -40,16 +39,7 @@ class PlaylistBlock(QWidget):
 
 
     def load_data(self):
-        if self.uid != "":
-            image_url = f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png"
-            with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt") as f:
-                title = f.readline()
-
-        else:
-            image_url = "img/x.png"
-            title = "(no playlist)"
-
-        return image_url, title
+        return Playlist.retrieve_quick_data(self.uid)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
