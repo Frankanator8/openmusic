@@ -18,7 +18,6 @@ class Playlist:
         self._index = 0
         self.last_tracks = []
         self._guaranteedNext = -1
-        print(uid)
         Playlist.cache[uid] = self
 
     def add_song(self, song_id):
@@ -194,7 +193,6 @@ class Playlist:
     @classmethod
     def retrieve_playlists(cls, force_no_cache=False):
         if cls.cache == {} or force_no_cache:
-            print("no cache")
             playlist_lib = {}
             for file in os.listdir(FileHandler.PLAYLIST_DATA):
                 if file != ".DS_Store":

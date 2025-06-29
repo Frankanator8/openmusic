@@ -7,10 +7,11 @@ class FileHandler:
     AUDIOS = os.path.join(_app_support_path, "audio")
     SONG_DATA = os.path.join(_app_support_path, "songdata")
     PLAYLIST_DATA = os.path.join(_app_support_path, "playlistdata")
+    PLUGINS = os.path.join(_app_support_path, "plugins")
 
     @classmethod
     def check_folder(cls):
-        check = ["audio", "songdata", "playlistdata"]
+        check = ["audio", "songdata", "playlistdata", "plugins"]
         for i in os.listdir(FileHandler._app_support_path):
             if os.path.isdir(os.path.join(FileHandler._app_support_path, i)):
                 if i in check:
