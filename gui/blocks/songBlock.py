@@ -25,11 +25,11 @@ class SongBlock(QWidget):
         self.title.setText(title)
         self.artistAndAlbum = QLabel()
         self.artistAndAlbum.setText(f"{artist} ({album})")
-        textLayout = QVBoxLayout()
-        textLayout.addWidget(self.title)
-        textLayout.addWidget(self.artistAndAlbum)
+        self.textLayout = QVBoxLayout()
+        self.textLayout.addWidget(self.title)
+        self.textLayout.addWidget(self.artistAndAlbum)
 
-        self.myLayout.addLayout(textLayout)
+        self.myLayout.addLayout(self.textLayout)
         self.setLayout(self.myLayout)
 
         self.setCursor(Qt.PointingHandCursor)

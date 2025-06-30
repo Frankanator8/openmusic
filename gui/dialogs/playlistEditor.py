@@ -23,36 +23,39 @@ class PlaylistEditor(QDialog):
 
         self.myLayout = QVBoxLayout()
 
-        hLayout = QHBoxLayout()
-        hLayout.addWidget(QLabel("Playlist Name"))
+        self.nameEditLayout = QHBoxLayout()
+        self.nameLabel = QLabel("Playlist Name")
+        self.nameEditLayout.addWidget(self.nameLabel)
         self.nameLineEdit = QLineEdit()
         self.nameLineEdit.setText(playlist.name)
         self.nameLineEdit.textChanged.connect(self.check_save)
-        hLayout.addWidget(self.nameLineEdit)
-        self.myLayout.addLayout(hLayout)
+        self.nameEditLayout.addWidget(self.nameLineEdit)
+        self.myLayout.addLayout(self.nameEditLayout)
 
-        hLayout = QHBoxLayout()
-        hLayout.addWidget(QLabel("Playlist Shuffle"))
+        self.shuffleLayout = QHBoxLayout()
+        self.shuffleLabel = QLabel("Playlist Shuffle")
+        self.shuffleLayout.addWidget(self.shuffleLabel)
         self.shuffle = QCheckBox()
         if playlist.shuffle:
             self.shuffle.toggle()
 
         self.shuffle.stateChanged.connect(self.check_save)
-        hLayout.addWidget(self.shuffle)
-        self.myLayout.addLayout(hLayout)
+        self.shuffleLayout.addWidget(self.shuffle)
+        self.myLayout.addLayout(self.shuffleLayout)
 
-        hLayout = QHBoxLayout()
-        hLayout.addWidget(QLabel("Playlist Image"))
-        button = QPushButton("Choose File")
-        button.clicked.connect(self.request_image)
-        hLayout.addWidget(button)
-        self.myLayout.addLayout(hLayout)
+        self.imageLayout = QHBoxLayout()
+        self.imageLabel = QLabel("Playlist Image")
+        self.imageLayout.addWidget(self.imageLabel)
+        self.chooseImageButton = QPushButton("Choose File")
+        self.chooseImageButton.clicked.connect(self.request_image)
+        self.imageLayout.addWidget(self.chooseImageButton)
+        self.myLayout.addLayout(self.imageLayout)
 
         self.fileLabel = QLabel(playlist.image_url)
         self.myLayout.addWidget(self.fileLabel)
 
-        splitter = QSplitter()
-        songLayout = QVBoxLayout()
+        self.splitter = QSplitter()
+        self.songLayout = QVBoxLayout()
         for i in Songs.retrieve_songs():
             hori = QHBoxLayout()
             hori.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -63,13 +66,13 @@ class PlaylistEditor(QDialog):
             checkbox.stateChanged.connect(lambda state, song=i: self.handle_checkbox(state, song))
             hori.addWidget(checkbox)
             hori.addWidget(widget)
-            songLayout.addLayout(hori)
+            self.songLayout.addLayout(hori)
 
-        widg = QWidget()
-        widg.setLayout(songLayout)
-        scrollArea = QScrollArea()
-        scrollArea.setWidget(widg)
-        splitter.addWidget(scrollArea)
+        self.songsWidget = QWidget()
+        self.songsWidget.setLayout(self.songLayout)
+        self.songScrollArea = QScrollArea()
+        self.songScrollArea.setWidget(self.songsWidget)
+        self.splitter.addWidget(self.songScrollArea)
 
         self.list_widget = QListWidget()
 
@@ -87,10 +90,10 @@ class PlaylistEditor(QDialog):
             self.list_widget.addItem(item)
             self.list_widget.setItemWidget(item, song_widget)
 
-        splitter.addWidget(self.list_widget)
-
-        self.myLayout.addWidget(QLabel("Check songs you want in the playlist on the Song Library (left), and reorder on the right."))
-        self.myLayout.addWidget(splitter)
+        self.splitter.addWidget(self.list_widget)
+        self.songAddInfo = QLabel("Check songs you want in the playlist on the Song Library (left), and reorder on the right.")
+        self.myLayout.addWidget(self.songAddInfo)
+        self.myLayout.addWidget(self.splitter)
 
         self.submitButton = QPushButton()
         self.submitButton.setText("Save")

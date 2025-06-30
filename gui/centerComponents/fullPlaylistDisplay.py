@@ -16,30 +16,31 @@ class FullPlaylistDisplay(QWidget):
 
         if uid != "":
             self.playlist = Playlist.load(uid)
-            hLayout = QHBoxLayout()
-            image = QLabel()
-            image.setPixmap(QPixmap(self.playlist.image_url))
-            image.setMaximumSize(QSize(256, 256))
-            image.setScaledContents(True)
-            hLayout.addWidget(image)
+            self.headerLayout = QHBoxLayout()
+            self.playlistImage = QLabel()
+            self.playlistImage.setPixmap(QPixmap(self.playlist.image_url))
+            self.playlistImage.setMaximumSize(QSize(256, 256))
+            self.playlistImage.setScaledContents(True)
+            self.headerLayout.addWidget(self.playlistImage)
 
-            vLayout = QVBoxLayout()
-            vLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            title = QLabel()
-            title.setText(self.playlist.name)
-            shuffle = QLabel()
-            shuffle.setText(f"Shuffle: {'ON' if self.playlist.shuffle else 'OFF'}")
-            button = QPushButton()
-            button.setText("Edit Playlist")
-            button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-            button.clicked.connect(self.edit_curr_playlist)
+            self.infoLayout = QVBoxLayout()
+            self.infoLayout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+            self.title = QLabel()
+            self.title.setText(self.playlist.name)
+            self.shuffle = QLabel()
+            self.shuffle.setText(f"Shuffle: {'ON' if self.playlist.shuffle else 'OFF'}")
+            self.editButton = QPushButton()
+            self.editButton.setText("Edit Playlist")
+            self.editButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            self.editButton.clicked.connect(self.edit_curr_playlist)
 
-            vLayout.addWidget(title)
-            vLayout.addWidget(shuffle)
-            hLayout.addLayout(vLayout)
-            vLayout.addWidget(button)
+            self.infoLayout.addWidget(self.title)
+            self.infoLayout.addWidget(self.shuffle)
+            self.infoLayout.addWidget(self.editButton)
+            self.headerLayout.addLayout(self.infoLayout)
 
-            self.myLayout.addLayout(hLayout)
+
+            self.myLayout.addLayout(self.headerLayout)
             self.uidToIndex = {}
             for index, song in enumerate(self.playlist.songs):
                 widget = SongBlock(song)
@@ -49,9 +50,9 @@ class FullPlaylistDisplay(QWidget):
                 self.uidToIndex[song] = index
 
         else:
-            label = QLabel("Choose a playlist in your Playlist Library to play (scroll and click on the row), or choose a song to play from your Song Library (scroll and click on the row).")
-            label.setWordWrap(True)
-            self.myLayout.addWidget(label)
+            self.noneLabel = QLabel("Choose a playlist in your Playlist Library to play (scroll and click on the row), or choose a song to play from your Song Library (scroll and click on the row).")
+            self.noneLabel.setWordWrap(True)
+            self.myLayout.addWidget(self.noneLabel)
 
         self.setLayout(self.myLayout)
         self.myLayout.update()

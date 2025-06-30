@@ -20,15 +20,15 @@ class MainGui(QWidget):
         self.center = CenterScrollArea(self.globalUpdater, osPlayer)
         self.rightMenu = RightMenu(osPlayer)
 
-        splitter = QSplitter()
-        self.layout.addWidget(splitter)
+        self.splitter = QSplitter()
+        self.layout.addWidget(self.splitter)
 
-        splitter.addWidget(self.leftMenu)
-        splitter.addWidget(self.center)
-        splitter.addWidget(self.rightMenu)
+        self.splitter.addWidget(self.leftMenu)
+        self.splitter.addWidget(self.center)
+        self.splitter.addWidget(self.rightMenu)
 
         x = self.size().toTuple()[0]
-        splitter.setSizes([x/4, 11*x/20, x/5])
+        self.splitter.setSizes([x/4, 11*x/20, x/5])
 
         self.setLayout(self.layout)
 

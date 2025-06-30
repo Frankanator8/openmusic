@@ -1,5 +1,7 @@
 # declarations.txt - api version number, title, author, plugin version, dependencies, APICommunicator file
 # api communicator - mainGui, osPlayer, update_timer (all under initialize), class loader
+
+# TODO plugin ui and plugin moving into correct folder
 import importlib
 import inspect
 import os

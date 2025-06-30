@@ -32,7 +32,7 @@ class RightMenu(QWidget):
         self.album.setText("Click the song's tile to play it")
         self.myLayout.addWidget(self.album)
 
-        hLayout = QHBoxLayout()
+        self.sliderLayout = QHBoxLayout()
         self.timeElapsed = QLabel()
         self.timeElapsed.setText("0:00")
         self.timeTotal = QLabel()
@@ -48,13 +48,13 @@ class RightMenu(QWidget):
         self.myLayout.addWidget(self.playlistLabel)
         self.myLayout.addWidget(self.playlistWidget)
 
-        hLayout.addWidget(self.timeElapsed)
-        hLayout.addWidget(self.slider)
-        hLayout.addWidget(self.timeTotal)
+        self.sliderLayout.addWidget(self.timeElapsed)
+        self.sliderLayout.addWidget(self.slider)
+        self.sliderLayout.addWidget(self.timeTotal)
 
-        self.myLayout.addLayout(hLayout)
+        self.myLayout.addLayout(self.sliderLayout)
 
-        hLayout2 = QHBoxLayout()
+        self.playbackControlLayout = QHBoxLayout()
         self.playButton = QPushButton()
         self.playButton.setText("Play")
         self.playButton.clicked.connect(self.toggle_play)
@@ -70,18 +70,20 @@ class RightMenu(QWidget):
         self.forward15 = QPushButton()
         self.forward15.setText("15>")
         self.forward15.clicked.connect(self.skip_forward)
-        hLayout2.addWidget(self.playButton)
-        hLayout2.addWidget(self.skipBackward)
-        hLayout2.addWidget(self.skipForward)
-        hLayout2.addWidget(self.backward15)
-        hLayout2.addWidget(self.forward15)
-        self.myLayout.addLayout(hLayout2)
+        self.playbackControlLayout.addWidget(self.playButton)
+        self.playbackControlLayout.addWidget(self.skipBackward)
+        self.playbackControlLayout.addWidget(self.skipForward)
+        self.playbackControlLayout.addWidget(self.backward15)
+        self.playbackControlLayout.addWidget(self.forward15)
+        self.myLayout.addLayout(self.playbackControlLayout)
 
         self.setLayout(self.myLayout)
 
         self.lastPlayedSong = ""
         self.space_shortcut = QShortcut(QKeySequence(Qt.Key.Key_Space), self)
         self.space_shortcut.activated.connect(self.toggle_play)
+
+
 
     def update_gui(self):
         if self.osPlayer.player:

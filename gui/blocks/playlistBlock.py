@@ -20,11 +20,11 @@ class PlaylistBlock(QWidget):
         self.albumCover.setScaledContents(True)
         self.myLayout.addWidget(self.albumCover)
 
-        textLayout = QVBoxLayout()
+        self.textLayout = QVBoxLayout()
         self.title = QLabel()
         self.title.setText(title)
-        textLayout.addWidget(self.title)
-        self.myLayout.addLayout(textLayout)
+        self.textLayout.addWidget(self.title)
+        self.myLayout.addLayout(self.textLayout)
 
         self.setLayout(self.myLayout)
 

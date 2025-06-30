@@ -15,8 +15,8 @@ class SongMenu(QWidget):
         super().__init__()
         self.osPlayer = osPlayer
         self.globalUpdater = globalUpdater
-        self.vlayout = QVBoxLayout()
-        self.setLayout(self.vlayout)
+        self.myLayout = QVBoxLayout()
+        self.setLayout(self.myLayout)
 
         self.reload()
 
@@ -24,14 +24,14 @@ class SongMenu(QWidget):
         self.osPlayer.play(uid)
 
     def reload(self):
-        while self.vlayout.count():
-            child = self.vlayout.takeAt(0)
+        while self.myLayout.count():
+            child = self.myLayout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
         for i in Songs.retrieve_songs():
             widget = SongBlock(i)
-            self.vlayout.addWidget(widget)
+            self.myLayout.addWidget(widget)
             widget.clicked.connect(self.play_song)
             widget.right_click.connect(self.open_context_sowidget)
 
