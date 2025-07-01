@@ -1,12 +1,14 @@
 # declarations.txt - api version number, title, author, plugin version, dependencies, APICommunicator file
 # api communicator - mainGui, osPlayer, update_timer (all under initialize), class loader
 
-# TODO plugin ui and plugin moving into correct folder
+# TODO plugin ui
 import importlib
 import inspect
 import os
+import shutil
 import sys
 from pathlib import Path
+from zipfile import ZipFile
 
 from gui.blocks.playlistBlock import PlaylistBlock
 from gui.blocks.songBlock import SongBlock
@@ -23,25 +25,28 @@ from gui.rightComponents.rightMenu import RightMenu
 from osop.filehandler import FileHandler
 from osop.osplayer import OSPlayer
 from plugins.opapi import OpenMusicClient
+from plugins.pluginInfo import PluginInfo
 from util.playlist import Playlist
 from util.songs import Songs
 
 
 class PluginManager:
-    def __init__(self):
-        self.plugins = []
-        self.clients = {}
-        self.payload = {}
+    plugins = []
+    clients = {}
+    payload = {}
 
-    def discover_plugins(self):
-        self.plugins = []
+    @classmethod
+    def discover_plugins(cls):
+        cls.plugins = []
         for folder in os.listdir(FileHandler.PLUGINS):
             if os.path.isdir(folder):
-                if os.path.exists(os.path.join(folder, "declarations.txt")) and os.path.exists(os.path.join(folder, "opapi.py")):
-                    self.plugins.append(Path(folder).stem)
+                if os.path.exists(os.path.join(folder, "declarations.txt")):
+                    cls.plugins.append(Path(folder).stem)
+                    PluginInfo.plugins.append(Path(folder).stem)
 
-    def create_payload(self, app, osPlayer, mainGui):
-        self.payload = {
+    @classmethod
+    def create_payload(cls, app, osPlayer, mainGui):
+        cls.payload = {
             "app": app,
             "os_player": osPlayer,
             "main_gui": mainGui,
@@ -63,41 +68,58 @@ class PluginManager:
             },
             "statics": {
                 "FileHandler": FileHandler,
-                "Songs": Songs,
+                "Songs": Songs
             }
         }
 
+    @classmethod
+    def load_plugins(cls):
+        if cls.payload is not {}:
+            for plugin in cls.plugins:
+                cls.load_plugin(plugin)
 
-    def load_plugins(self):
-        if self.payload is not {}:
-            for plugin in self.plugins:
-                plugin_dir = os.path.join(FileHandler.PLUGINS, plugin)
-                sys.path.insert(0, str(plugin_dir))
+    @classmethod
+    def load_plugin(cls, plugin):
+        plugin_dir = os.path.join(FileHandler.PLUGINS, plugin)
+        sys.path.insert(0, str(plugin_dir))
 
-                try:
-                    opapi = importlib.import_module("opapi")
-                    payload = {}
-                    for name, obj in inspect.getmembers(opapi):
-                        if inspect.isclass(obj) and issubclass(obj, OpenMusicClient):
-                            plugin_client = obj(**payload)
-                            self.clients[plugin] = plugin_client
+        try:
+            if os.path.exists(os.path.join(FileHandler.PLUGINS, plugin, "opapi.py")):
+                opapi = importlib.import_module("opapi")
+                payload = cls.payload
+                for name, obj in inspect.getmembers(opapi):
+                    if inspect.isclass(obj) and issubclass(obj, OpenMusicClient):
+                        plugin_client = obj(**payload)
+                        cls.clients[plugin] = plugin_client
 
-                except Exception as e:
-                    print(str(e))
+        except Exception as e:
+            print(str(e))
 
-                if str(plugin_dir) in sys.path:
-                    sys.path.remove(str(plugin_dir))
-
-
-    def pre_gui_creation(self):
-        for plugin in self.clients.values():
-            plugin.pre_gui_creation()
-
-    def post_gui_creation(self):
-        for plugin in self.clients.values():
-            plugin.post_gui_creation()
-
-    def timer_update(self):
-        for plugin in self.clients.values():
+        if str(plugin_dir) in sys.path:
+            sys.path.remove(str(plugin_dir))
+    
+    @classmethod
+    def on_launch(cls):
+        for plugin in cls.clients.values():
+            plugin.on_launch()
+    
+    @classmethod
+    def timer_update(cls):
+        for plugin in cls.clients.values():
             plugin.timer_update()
+    
+    @classmethod
+    def import_plugin(cls, url):
+        path = Path(url)
+        if path.exists():
+            uid = Songs.make_uid()
+            if path.is_dir():
+                shutil.copytree(url, str(os.path.join(FileHandler.PLUGINS, uid)))
 
+            elif path.suffix[0] == ".zip":
+                with ZipFile(url) as zipped:
+                    zipped.extractall(str(os.path.join(FileHandler.PLUGINS, uid)))
+
+            cls.load_plugin(uid)
+            PluginInfo.get_info(uid)
+            cls.clients[uid].on_launch()

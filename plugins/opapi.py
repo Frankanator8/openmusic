@@ -5,8 +5,5 @@ class OpenMusicClient:
     def timer_update(self):
         pass
 
-    def pre_gui_creation(self):
-        pass
-
-    def post_gui_creation(self):
+    def on_launch(self):
         pass

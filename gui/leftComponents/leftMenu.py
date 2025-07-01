@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QWidget, QVBoxLayout, QSplitter, QScrollArea, QLab
     QLineEdit, QFileDialog, QCheckBox, QSizePolicy, QMessageBox
 import os
 
+from gui.dialogs.pluginEditor import PluginEditor
 from gui.globalUpdater import GlobalUpdater
 from gui.leftComponents.playlistmenu import PlaylistMenu
 from gui.leftComponents.songmenu import SongMenu
@@ -63,6 +64,9 @@ class LeftMenu(QWidget):
         self.splitter.addWidget(self.bottomWidget)
 
         self.myLayout.addWidget(self.splitter)
+        self.pluginEditorButton = QPushButton("Manage Plugins/Styles")
+        self.pluginEditorButton.clicked.connect(self.manage_plugins)
+        self.myLayout.addWidget(self.pluginEditorButton)
         self.setLayout(self.myLayout)
         self.createdSongs = 0
 
@@ -526,4 +530,8 @@ class LeftMenu(QWidget):
     def new_playlist(self):
         new = Playlist.create_playlist("New playlist", "", [], True)
         self.playlistMenu.edit_playlist(new)
+
+    def manage_plugins(self):
+        editor = PluginEditor(self)
+        editor.exec()
 
