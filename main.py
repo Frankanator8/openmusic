@@ -9,9 +9,11 @@ from gui.mainGui import MainGui
 from osop.osplayer import OSPlayer
 from plugins.pluginInfo import PluginInfo
 from plugins.pluginManager import PluginManager
+from plugins.pluginOrder import PluginOrder
 
 PluginManager.discover_plugins()
 PluginInfo.get_plugins_info()
+PluginOrder.load_save()
 
 app = QApplication(sys.argv)
 FileHandler.check_folder()
@@ -28,6 +30,7 @@ gui_update_timer.start(50)
 
 PluginManager.create_payload(app, player, widget)
 PluginManager.load_plugins()
+PluginManager.load_styles()
 PluginManager.on_launch()
 
 plugin_timer = QTimer()

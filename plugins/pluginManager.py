@@ -5,10 +5,8 @@
 import importlib
 import inspect
 import os
-import shutil
 import sys
 from pathlib import Path
-from zipfile import ZipFile
 
 from gui.blocks.playlistBlock import PlaylistBlock
 from gui.blocks.songBlock import SongBlock
@@ -26,22 +24,21 @@ from osop.filehandler import FileHandler
 from osop.osplayer import OSPlayer
 from plugins.opapi import OpenMusicClient
 from plugins.pluginInfo import PluginInfo
+from plugins.pluginOrder import PluginOrder
 from util.playlist import Playlist
 from util.songs import Songs
 
 
 class PluginManager:
-    plugins = []
     clients = {}
     payload = {}
 
     @classmethod
     def discover_plugins(cls):
-        cls.plugins = []
+        PluginInfo.plugins = []
         for folder in os.listdir(FileHandler.PLUGINS):
             if os.path.isdir(folder):
                 if os.path.exists(os.path.join(folder, "declarations.txt")):
-                    cls.plugins.append(Path(folder).stem)
                     PluginInfo.plugins.append(Path(folder).stem)
 
     @classmethod
@@ -73,9 +70,57 @@ class PluginManager:
         }
 
     @classmethod
+    def load_styles(cls):
+        for plugin in PluginOrder.order:
+            if os.path.exists(os.path.join(FileHandler.PLUGINS, plugin, "style.qss")):
+                with open(os.path.join(FileHandler.PLUGINS, plugin, "style.qss")) as f:
+                    cls.payload["app"].setStyleSheet(f.read())
+
+            if os.path.exists(os.path.join(FileHandler.PLUGINS, plugin, "style.oss")):
+                with open(os.path.join(FileHandler.PLUGINS, plugin, "style.oss")) as f:
+                    data = f.read()
+
+                error = False
+                scanType = 0
+                data = ""
+                appliedWidget = ""
+
+                for char in data:
+                    if char == "{":
+                        if scanType == 0:
+                            appliedWidget = data.strip()
+                            data = ""
+                            scanType = 1
+
+                        else:
+                            error = True
+                            break
+
+                    elif char == "}":
+                        if scanType == 1:
+                            error = True
+                            break
+
+                        else:
+                            hierarchy = appliedWidget.split(".")
+                            currWidget = cls.payload["main_gui"]
+                            for i in hierarchy:
+                                if hasattr(currWidget, i):
+                                    currWidget = getattr(currWidget, i)
+
+                                else:
+                                    error = True
+
+                            currWidget.setStyleSheet(data.strip())
+                            data = ""
+
+                    else:
+                        data = f"{data}{char}"
+
+    @classmethod
     def load_plugins(cls):
         if cls.payload is not {}:
-            for plugin in cls.plugins:
+            for plugin in PluginInfo.plugins:
                 cls.load_plugin(plugin)
 
     @classmethod
@@ -105,21 +150,13 @@ class PluginManager:
     
     @classmethod
     def timer_update(cls):
+        if len(PluginInfo.to_process) > 0:
+            uid = PluginInfo.to_process.pop(0)
+            cls.load_plugin(uid)
+            PluginInfo.plugins.append(uid)
+            PluginInfo.get_info(uid)
+            PluginOrder.enabled[uid] = False
+            PluginOrder.save()
+
         for plugin in cls.clients.values():
             plugin.timer_update()
-    
-    @classmethod
-    def import_plugin(cls, url):
-        path = Path(url)
-        if path.exists():
-            uid = Songs.make_uid()
-            if path.is_dir():
-                shutil.copytree(url, str(os.path.join(FileHandler.PLUGINS, uid)))
-
-            elif path.suffix[0] == ".zip":
-                with ZipFile(url) as zipped:
-                    zipped.extractall(str(os.path.join(FileHandler.PLUGINS, uid)))
-
-            cls.load_plugin(uid)
-            PluginInfo.get_info(uid)
-            cls.clients[uid].on_launch()

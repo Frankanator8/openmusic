@@ -12,6 +12,7 @@ class PluginBlock(QWidget):
     def __init__(self, uid):
         super().__init__()
         self.myLayout = QHBoxLayout()
+        self.uid = uid
         info = PluginInfo.info[uid]
 
         match info["api_version"]:
