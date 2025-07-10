@@ -1,14 +1,12 @@
 import os
 
 from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QDesktopServices
+from PySide6.QtGui import QDesktopServices, QAction
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QListWidget, QListWidgetItem, QSplitter, QHBoxLayout, \
-    QCheckBox, QScrollArea, QWidget, QPushButton, QFileDialog
+    QCheckBox, QScrollArea, QWidget, QPushButton, QFileDialog, QMessageBox, QMenu
 from gui.blocks.pluginBlock import PluginBlock
 from osop.filehandler import FileHandler
-from plugins.pluginImporter import PluginImporter
 from plugins.pluginInfo import PluginInfo
-from plugins.pluginOrder import PluginOrder
 
 
 class PluginEditor(QDialog):
@@ -16,6 +14,9 @@ class PluginEditor(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Manage Plugins/Styles")
         self.setModal(True)
+        self.uidWidget = {}
+        self.uidPluginWidget = {}
+        self.list_widget = QListWidget()
 
         self.myLayout = QVBoxLayout()
         self.infoLabel = QLabel("Manage, view, or add plugins here.\n\n"
@@ -37,40 +38,30 @@ class PluginEditor(QDialog):
         self.openFolder = QPushButton("Open Plugin Folder")
         self.openFolder.clicked.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(FileHandler.PLUGINS)))
         self.buttonsLayout.addWidget(self.openFolder)
+        self.reload = QPushButton("Reload styles")
+        self.reload.clicked.connect(lambda: PluginInfo.reload_style())
+        self.buttonsLayout.addWidget(self.reload)
         self.myLayout.addLayout(self.buttonsLayout)
 
+        self.reloadAndDragInfo = QLabel("To reload plugins/see the effects of your changes in plugins, you must close and reopen OpenMusic.\nTo activate a plugin, press its checkmark on the left. \nUse the right reordering side to reorder the order in which styles are applied (code plugins are not affected by this)")
+        self.myLayout.addWidget(self.reloadAndDragInfo)
         self.splitter = QSplitter()
+
         self.pluginLayout = QVBoxLayout()
         self.checkboxes = {}
-        for i in PluginInfo.plugins:
-            hori = QHBoxLayout()
-            hori.setAlignment(Qt.AlignmentFlag.AlignLeft)
-            widget = PluginBlock(i)
-            checkbox = QCheckBox()
-            checkbox.stateChanged.connect(lambda state, song=i: self.handle_checkbox(state, song))
-            hori.addWidget(checkbox)
-            hori.addWidget(widget)
-            if PluginOrder.get_enabled(i):
-                checkbox.toggle()
-
-            self.checkboxes[i] = checkbox
-            self.pluginLayout.addLayout(hori)
-
         self.pluginsWidget = QWidget()
         self.pluginsWidget.setLayout(self.pluginLayout)
+        self.reload_plugin_list()
+
         self.pluginScrollArea = QScrollArea()
         self.pluginScrollArea.setWidget(self.pluginsWidget)
         self.splitter.addWidget(self.pluginScrollArea)
-
-        self.uidWidget = {}
-        self.uidPluginWidget = {}
-        self.list_widget = QListWidget()
 
         # Enable drag and drop for reordering
         self.list_widget.setDragDropMode(QListWidget.InternalMove)
         self.list_widget.setDefaultDropAction(Qt.MoveAction)
         self.list_widget.setSelectionMode(QListWidget.SingleSelection)
-        for i in PluginOrder.order:
+        for i in PluginInfo.order:
             item = QListWidgetItem()
             plugin_widget = PluginBlock(i)
             item.setSizeHint(plugin_widget.sizeHint())
@@ -83,8 +74,31 @@ class PluginEditor(QDialog):
 
         self.splitter.addWidget(self.list_widget)
         self.myLayout.addWidget(self.splitter)
+        x = self.size().toTuple()[0]
+        self.splitter.setSizes([x/2, x/2])
 
         self.setLayout(self.myLayout)
+
+    def open_plugin_context(self, pos, uid):
+        menu = QMenu(self)
+
+        # Add actions to the menu
+        edit_action = QAction("Open Folder", self)
+        edit_action.triggered.connect(lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.join(FileHandler.PLUGINS, uid))))
+        menu.addAction(edit_action)
+
+        delete_action = QAction("Delete", self)
+        delete_action.triggered.connect(lambda: self.delete_plugin(uid))
+        menu.addAction(delete_action)
+
+        sender_widget = self.sender()
+        if isinstance(sender_widget, PluginBlock):
+            # Map the position from the sender widget to global coordinates
+            global_pos = sender_widget.mapToGlobal(pos)
+            menu.exec(global_pos)
+        else:
+            # Fallback to current behavior if sender isn't available
+            menu.exec(self.mapToGlobal(pos))
 
     def handle_checkbox(self, state, plugin_uid):
         if not state:
@@ -107,43 +121,83 @@ class PluginEditor(QDialog):
             self.list_widget.addItem(item)
             self.list_widget.setItemWidget(item, plugin_widget)
 
+
         self.save()
 
     def save(self):
         for i in PluginInfo.plugins:
-            PluginOrder.enabled[i] = self.checkboxes[i].isChecked()
+            PluginInfo.enabled[i] = self.checkboxes[i].isChecked()
 
-        PluginOrder.order = []
+        PluginInfo.order = []
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
-            PluginOrder.order.append(self.list_widget.itemWidget(item).uid)
-        PluginOrder.save()
+            PluginInfo.order.append(self.list_widget.itemWidget(item).uid)
+        PluginInfo.save()
 
     def request_folder(self):
         folderName = QFileDialog.getExistingDirectory(self, "Open File", str(os.path.expanduser("~")))
         if folderName != "":
-            PluginImporter.import_plugin(folderName)
+            PluginInfo.import_plugin(folderName)
+            self.reload_plugin_list()
 
     def request_zip(self):
         fileName = QFileDialog.getOpenFileName(self, "Open File", str(os.path.expanduser("~")),"Zipped File (*.zip)")
         fileName = fileName[0]
         if fileName != "":
-            PluginImporter.import_plugin(fileName)
+            PluginInfo.import_plugin(fileName)
+            self.reload_plugin_list()
+
+    def clear_layout(self, layout):
+        while layout.count():
+            child = layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+            elif child.layout():
+                self.clear_layout(child.layout())
+                child.layout().deleteLater()
 
     def reload_plugin_list(self):
-        self.pluginLayout = QVBoxLayout()
+        self.checkboxes = {}
+        while self.pluginLayout.count():
+            child = self.pluginLayout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+            elif child.layout():
+                # Recursively delete nested layouts
+                self.clear_layout(child.layout())
+                child.layout().deleteLater()
+
         for i in PluginInfo.plugins:
             hori = QHBoxLayout()
             hori.setAlignment(Qt.AlignmentFlag.AlignLeft)
             widget = PluginBlock(i)
+            widget.right_click.connect(self.open_plugin_context)
             checkbox = QCheckBox()
-            checkbox.stateChanged.connect(lambda state, song=i: self.handle_checkbox(state, song))
-            if PluginOrder.get_enabled(i):
+            if PluginInfo.get_enabled(i):
                 checkbox.toggle()
 
+            checkbox.stateChanged.connect(lambda state, song=i: self.handle_checkbox(state, song))
             self.checkboxes[i] = checkbox
             hori.addWidget(checkbox)
             hori.addWidget(widget)
             self.pluginLayout.addLayout(hori)
 
-        self.pluginsWidget.setLayout(self.pluginLayout)
+        self.pluginsWidget.updateGeometry()
+        self.pluginsWidget.update()
+        self.pluginLayout.update()
+
+    def delete_plugin(self, uid):
+        message = QMessageBox.critical(self, "Really delete?", f"Really delete plugin {PluginInfo.info[uid]["name"]}? This action is irreversible", QMessageBox.Ok | QMessageBox.Cancel)
+        if message == QMessageBox.Ok:
+            PluginInfo.delete_plugin(uid)
+            if uid in self.uidWidget.keys():
+                self.list_widget.removeItemWidget(self.uidWidget[uid])
+                for i in range(self.list_widget.count()):
+                    item = self.list_widget.item(i)
+                    if self.uidWidget[uid] == item:
+                        self.list_widget.takeItem(i)
+                        break
+                self.uidPluginWidget[uid].deleteLater()
+                del self.uidWidget[uid]
+                del self.uidPluginWidget[uid]
+            self.reload_plugin_list()

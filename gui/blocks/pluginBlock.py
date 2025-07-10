@@ -37,6 +37,7 @@ class PluginBlock(QWidget):
         self.setCursor(Qt.PointingHandCursor)
         self.setAttribute(Qt.WA_Hover)
         self.setMouseTracking(True)
+        self.setLayout(self.myLayout)
         for child in self.findChildren(QLabel):
             child.setCursor(Qt.PointingHandCursor)
 

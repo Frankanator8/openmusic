@@ -9,11 +9,10 @@ from gui.mainGui import MainGui
 from osop.osplayer import OSPlayer
 from plugins.pluginInfo import PluginInfo
 from plugins.pluginManager import PluginManager
-from plugins.pluginOrder import PluginOrder
 
 PluginManager.discover_plugins()
 PluginInfo.get_plugins_info()
-PluginOrder.load_save()
+PluginInfo.load_save()
 
 app = QApplication(sys.argv)
 FileHandler.check_folder()
