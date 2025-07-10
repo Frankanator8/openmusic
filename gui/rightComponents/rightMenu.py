@@ -1,4 +1,5 @@
 import math
+import os.path
 
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QPixmap, QShortcut, QKeySequence
@@ -15,7 +16,7 @@ class RightMenu(QWidget):
         self.myLayout = QVBoxLayout()
 
         self.image = QLabel()
-        self.image.setPixmap(QPixmap("img/x.png"))
+        self.image.setPixmap(QPixmap(os.path.join("img", "x.png")))
         self.image.setMinimumSize(QSize(256, 256))
 
         self.image.setMaximumSize(QSize(256, 256))
@@ -139,7 +140,7 @@ class RightMenu(QWidget):
             self.album.setText("Click the song's tile to play it")
             self.playlistWidget.updateUID("")
             self.playlistLabel.setText("Not a part of a playlist")
-            self.image.setPixmap(QPixmap("img/x.png"))
+            self.image.setPixmap(QPixmap(os.path.join("img", "x.png")))
             self.lastPlayedSong = ""
 
     def seek_time(self, value):

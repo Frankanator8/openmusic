@@ -72,24 +72,24 @@ class Playlist:
         self._guaranteedNext = index
 
     def save(self):
-        with open(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt", "w") as f:
+        with open(os.path.join(FileHandler.PLAYLIST_DATA, f"{self.uid}.txt"), "w") as f:
             f.write("\n".join([self._name, str(1 if self._shuffle else 0), str(self._index), ""] + self._songs))
 
         if self._image_url != "" and not self._image_url.split("/")[-1].startswith(self.uid):
-            shutil.copyfile(self._image_url, f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png")
-            self._image_url = f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png"
+            shutil.copyfile(self._image_url, str(os.path.join(FileHandler.PLAYLIST_DATA, f"{self.uid}.png")))
+            self._image_url = str(os.path.join(FileHandler.PLAYLIST_DATA, f"{self.uid}.png"))
 
         self._changed = False
 
     def save_as_m3u(self, path):
         data = "#EXTM3U\n\n"
         for song in self._songs:
-            with open(f"{FileHandler.SONG_DATA}/{song}.txt") as f:
+            with open(os.path.join(FileHandler.SONG_DATA, f"{song}.txt")) as f:
                 title = f.read()
                 artist = f.read()
                 album = f.read()
                 duration = int(round(float(f.read())))
-            data = f"#EXTINF:{duration},logo={FileHandler.SONG_DATA}/{song}.png,{title} - {artist} from {album}\n{FileHandler.AUDIOS}/{song}.mp3\n\n"
+            data = f"#EXTINF:{duration},logo={str(os.path.join(FileHandler.SONG_DATA, f'{song}.png'))},{title} - {artist} from {album}\n{str(os.path.join(FileHandler.AUDIOS, f'{song}.mp3'))}\n\n"
 
         data.strip()
         with open(path, "w") as f:
@@ -102,7 +102,7 @@ class Playlist:
 
         else:
             instance = cls(uid)
-            with open(f"{FileHandler.PLAYLIST_DATA}/{uid}.txt") as f:
+            with open(os.path.join(FileHandler.PLAYLIST_DATA, f"{uid}.txt")) as f:
                 lines = f.readlines()
 
             for index, line in enumerate(lines):
@@ -122,7 +122,7 @@ class Playlist:
                 else:
                     instance._songs.append(line)
 
-            instance._image_url = f"{FileHandler.PLAYLIST_DATA}/{uid}.png"
+            instance._image_url = str(os.path.join(FileHandler.PLAYLIST_DATA, f"{uid}.png"))
             instance._changed = False
 
             return instance
@@ -186,8 +186,8 @@ class Playlist:
         return instance
 
     def delete(self):
-        os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.txt")
-        os.remove(f"{FileHandler.PLAYLIST_DATA}/{self.uid}.png")
+        os.remove(os.path.join(FileHandler.PLAYLIST_DATA, f"{self.uid}.txt"))
+        os.remove(os.path.join(FileHandler.PLAYLIST_DATA, f"{self.uid}.png"))
         del Playlist.cache[self.uid]
 
     @classmethod
@@ -233,7 +233,7 @@ class Playlist:
             title = cls.cache[uid].name
 
         else:
-            image_url = "img/x.png"
+            image_url = os.path.join("img", "x.png")
             title = "(no playlist)"
 
         return image_url, title

@@ -65,13 +65,13 @@ class Songs:
     @classmethod
     def edit_song(cls, uid, song_name, artist, album, image_url, audio_url):
         clip = moviepy.AudioFileClip(audio_url)
-        with open(f"{FileHandler.SONG_DATA}/{uid}.txt", "w") as f:
+        with open(os.path.join(FileHandler.SONG_DATA, f"{uid}.txt"), "w") as f:
             f.write(f"{song_name}\n{artist}\n{album}\n{clip.duration}")
 
-        if audio_url != f"{FileHandler.AUDIOS}/{uid}.mp3":
-            clip.write_audiofile(f"{FileHandler.AUDIOS}/{uid}.mp3")
-        if image_url != f"{FileHandler.SONG_DATA}/{uid}.png":
-            shutil.copyfile(image_url, f"{FileHandler.SONG_DATA}/{uid}.png")
+        if audio_url != str(os.path.join(FileHandler.AUDIOS, f"{uid}.mp3")):
+            clip.write_audiofile(str(os.path.join(FileHandler.AUDIOS, f"{uid}.mp3")))
+        if image_url != str(os.path.join(FileHandler.SONG_DATA, f"{uid}.png")):
+            shutil.copyfile(image_url, str(os.path.join(FileHandler.SONG_DATA, f"{uid}.png")))
 
         cls.cache[uid] = (image_url, audio_url, song_name, artist, album)
 
@@ -81,9 +81,9 @@ class Songs:
             return cls.cache[uid]
 
         else:
-            image_url = f"{FileHandler.SONG_DATA}/{uid}.png"
-            audio_url = f"{FileHandler.AUDIOS}/{uid}.mp3"
-            with open(f"{FileHandler.SONG_DATA}/{uid}.txt") as f:
+            image_url = str(os.path.join(FileHandler.SONG_DATA, f"{uid}.png"))
+            audio_url = str(os.path.join(FileHandler.AUDIOS, f"{uid}.mp3"))
+            with open(os.path.join(FileHandler.SONG_DATA, f"{uid}.txt")) as f:
                 title = f.readline().strip()
                 artist = f.readline().strip()
                 album = f.readline().strip()
@@ -94,8 +94,8 @@ class Songs:
 
     @classmethod
     def delete_song(cls, uid):
-        os.remove(f"{FileHandler.SONG_DATA}/{uid}.txt")
-        os.remove(f"{FileHandler.AUDIOS}/{uid}.mp3")
-        os.remove(f"{FileHandler.SONG_DATA}/{uid}.png")
+        os.remove(os.path.join(FileHandler.SONG_DATA, f"{uid}.txt"))
+        os.remove(os.path.join(FileHandler.AUDIOS, f"{uid}.mp3"))
+        os.remove(os.path.join(FileHandler.SONG_DATA, f"{uid}.png"))
         if uid in cls.cache.keys():
             del cls.cache[uid]

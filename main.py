@@ -1,5 +1,5 @@
 import sys
-
+import platform
 from PySide6.QtWidgets import QApplication
 
 from osop.filehandler import FileHandler
@@ -16,7 +16,18 @@ PluginInfo.load_save()
 
 app = QApplication(sys.argv)
 FileHandler.check_folder()
-player = OSPlayer()
+
+if platform.system() == "Darwin":
+    from osop.osPlayers.macos import MacOSPlayer
+    player = MacOSPlayer()
+
+elif platform.system() == "Windows":
+    from osop.osPlayers.windows import WindowsPlayer
+    player = WindowsPlayer()
+
+else:
+    print("OpenMusic currently only supports MacOS and Windows. Check back later for further support!")
+    sys.exit()
 
 gui_timer = QTimer()
 gui_timer.timeout.connect(player.update)

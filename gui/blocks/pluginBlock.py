@@ -1,7 +1,10 @@
+import os
+
 from PySide6.QtCore import QSize, Signal
 from PySide6.QtGui import QPixmap, Qt
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
 
+from osop.filehandler import FileHandler
 from plugins.pluginInfo import PluginInfo
 
 
@@ -19,7 +22,10 @@ class PluginBlock(QWidget):
             case "0.1":
                 image_url = info["image_url"]
                 if image_url == "":
-                    image_url = "img/x.png"
+                    image_url = os.path.join("img", "x.png")
+
+                else:
+                    image_url = os.path.join(FileHandler.PLUGINS, self.uid, *image_url.split("/"))
                 title = info["name"]
                 author = info["author"]
                 version = info["version"]
