@@ -21,9 +21,9 @@ from gui.leftComponents.playlistmenu import PlaylistMenu
 from gui.leftComponents.songmenu import SongMenu
 from gui.mainGui import MainGui
 from gui.rightComponents.rightMenu import RightMenu
+from openmusic_api.opapi import OpenMusicClient
 from osop.filehandler import FileHandler
 from osop.osplayer import OSPlayer
-from plugins.opapi import OpenMusicClient
 from plugins.pluginInfo import PluginInfo
 from util.playlist import Playlist
 from util.songs import Songs
@@ -141,17 +141,17 @@ class PluginManager:
 
         try:
             if PluginInfo.get_enabled(plugin):
-                if os.path.exists(os.path.join(FileHandler.PLUGINS, plugin, "opapi.py")):
+                if os.path.exists(os.path.join(FileHandler.PLUGINS, plugin, "client.py")):
                     # Import dependencies
                     match PluginInfo.info[plugin]["api_version"]:
                         case "0.1":
                             for dependency in PluginInfo.info[plugin]["dependencies"]:
                                 subprocess.check_call([sys.executable, "-m", "pip", "install", dependency])
                     # Import file, extract class and instantiate it
-                    opapi = importlib.import_module("opapi")
+                    opapi = importlib.import_module("client")
                     payload = cls.payload
                     for name, obj in inspect.getmembers(opapi):
-                        if inspect.isclass(obj) and obj.__name__ == "OpenMusicClient": #issubclass(obj, OpenMusicClient):
+                        if inspect.isclass(obj) and issubclass(obj, OpenMusicClient) and obj is not OpenMusicClient:
                             plugin_client = obj(**payload)
                             cls.clients[plugin] = plugin_client
 

@@ -195,7 +195,7 @@ class PluginEditor(QDialog):
 
         self.pluginsWidget.updateGeometry()
         self.pluginsWidget.update()
-        self.pluginLayout.upd
+        self.pluginLayout.update()
 
     # delete a plugin with confirmation
     def delete_plugin(self, uid):

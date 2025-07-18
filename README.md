@@ -14,7 +14,7 @@ Open source music player for Mac and Windows* with plugin and full OS support. B
 
 ---
 ## Installation
-You can find prebuilt binaries/applications in [Releases](https://github.com/Frankanator8/releases).
+You can find prebuilt binaries/applications in [Releases](https://github.com/Frankanator8/openmusic/releases).
 
 ### To install from source
 Prerequisities:
@@ -32,17 +32,17 @@ macOS:
 ```bash
 python3 -m venv .venv/
 . .venv/bin/activate
-pip3 install PySide6 Pillow moviepy pyobjc
+pip3 install PySide6 Pillow moviepy pyobjc openmusic_api
 ```
 
 Windows:
 ```bash
 py3 -m venv .venv/
 .venv\Scripts\activate
-pip install PySide6 Pillow moviepy pywin32 comtypes
+pip install PySide6 Pillow moviepy pywin32 comtypes openmusic_api
 ```
 
-Run
+3. Run
 ```bash
 python3 main.py
 ```
@@ -52,7 +52,7 @@ python3 main.py
 We welcome anyone to contribute to OpenMusic, whether it be a plugin or a pull request to this repo.
 
 ## Contributions
-Please see [CONTRIBUTING.md](https://github.com/Frankanator8/openmusic/CONTRIBUTING.md)
+Please see [CONTRIBUTING.md](https://github.com/Frankanator8/openmusic/blob/main/CONTRIBUTING.md)
 
 ## Plugins
 Please see the [wiki](https://github.com/Frankanator8/openmusic/wiki)
