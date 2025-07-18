@@ -9,15 +9,15 @@ from gui.mainGui import MainGui
 from plugins.pluginInfo import PluginInfo
 from plugins.pluginManager import PluginManager
 
+# Makes sure all folders exist in App Support
+FileHandler.check_folder()
+
 # Discover all plugins and their information, but don't load them yet
 PluginManager.discover_plugins()
 PluginInfo.get_plugins_info()
 PluginInfo.load_save()
 
 app = QApplication(sys.argv)
-
-# Makes sure all folders exist in App Support
-FileHandler.check_folder()
 
 # Load appropriate OS Player
 if platform.system() == "Darwin":

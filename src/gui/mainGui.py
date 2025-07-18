@@ -1,3 +1,6 @@
+import sys
+
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import *
 
 from gui.centerComponents.centerScroll import CenterScrollArea
@@ -12,7 +15,11 @@ class MainGui(QWidget):
         super().__init__()
         # Set window properties
         self.setWindowTitle("OpenMusic")
-        self.showFullScreen()
+        if sys.platform == "darwin":
+            self.showFullScreen()
+
+        else:
+            QTimer.singleShot(0, self.showMaximized)
 
         # Create layout
         self.myLayout = QVBoxLayout()

@@ -18,27 +18,26 @@ class PluginBlock(QWidget):
         self.uid = uid
         info = PluginInfo.info[uid]
 
-        match info["api_version"]:
-            case "0.1":
-                image_url = info["image_url"]
-                if image_url == "":
-                    image_url = os.path.join("img", "x.png") # no image, use default
+        if info["api_version"] == "0.1":
+            image_url = info["image_url"]
+            if image_url == "":
+                image_url = os.path.join("img", "x.png") # no image, use default
 
-                else:
-                    image_url = os.path.join(FileHandler.PLUGINS, self.uid, *image_url.split("/")) # use path relative to the plugin
-                title = info["name"]
-                author = info["author"]
-                version = info["version"]
-                type = f"Type: {", ".join(["Plugin" if info["has_plugin"] else "", "Style" if info["has_style"] else ""])}" # type of plugin (style or code)
-                self.image = QLabel() # plugin image
-                self.image.setPixmap(QPixmap(image_url))
-                self.image.setMaximumSize(QSize(64, 64))
-                self.image.setScaledContents(True)
+            else:
+                image_url = os.path.join(FileHandler.PLUGINS, self.uid, *image_url.split("/")) # use path relative to the plugin
+            title = info["name"]
+            author = info["author"]
+            version = info["version"]
+            type = f"Type: {", ".join(["Plugin" if info["has_plugin"] else "", "Style" if info["has_style"] else ""])}" # type of plugin (style or code)
+            self.image = QLabel() # plugin image
+            self.image.setPixmap(QPixmap(image_url))
+            self.image.setMaximumSize(QSize(64, 64))
+            self.image.setScaledContents(True)
 
-                self.info = QLabel() # plugin data
-                self.info.setText(f"{title} - {author}\n{type}\nAPI Version: 0.1/Plugin Version: {version}")
-                self.myLayout.addWidget(self.image)
-                self.myLayout.addWidget(self.info)
+            self.info = QLabel() # plugin data
+            self.info.setText(f"{title} - {author}\n{type}\nAPI Version: 0.1/Plugin Version: {version}")
+            self.myLayout.addWidget(self.image)
+            self.myLayout.addWidget(self.info)
 
         # make it clickable
         self.setCursor(Qt.PointingHandCursor)

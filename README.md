@@ -37,9 +37,9 @@ pip3 install PySide6 Pillow moviepy pyobjc openmusic_api
 
 Windows:
 ```bash
-py3 -m venv .venv/
+py -m venv .venv/
 .venv\Scripts\activate
-pip install PySide6 Pillow moviepy pywin32 comtypes openmusic_api
+pip install PySide6 Pillow moviepy pywin32 winrt openmusic_api
 ```
 
 3. Run

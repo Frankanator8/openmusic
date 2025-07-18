@@ -413,24 +413,24 @@ class LeftMenu(QWidget):
                         failed = True
                         break
 
-                    match audio_pattern[patternIndex+1]: # set appropriate data type
-                        case "s":
-                            dataIndex = 0
+                    nextChar = audio_pattern[patternIndex+1]
+                    if nextChar == "s": # set appropriate data type
+                        dataIndex = 0
 
-                        case "a":
-                            dataIndex = 1
+                    elif nextChar == "a":
+                        dataIndex = 1
 
-                        case "l":
-                            dataIndex = 2
+                    elif nextChar == "l":
+                        dataIndex = 2
 
-                        case "%": # false alarm, it is just a % sign (check for it though)
-                            if i[fileIndex] == "%":
-                                dataIndex = -1
-                                fileIndex += 1
+                    elif nextChar == "%": # false alarm, it is just a % sign (check for it though)
+                        if i[fileIndex] == "%":
+                            dataIndex = -1
+                            fileIndex += 1
 
-                            else:
-                                failed = True
-                                break
+                        else:
+                            failed = True
+                            break
 
                     patternIndex += 2
 
@@ -494,24 +494,24 @@ class LeftMenu(QWidget):
                         failed = True
                         break
 
-                    match cover_pattern[patternIndex+1]:
-                        case "s":
-                            dataIndex = 0
+                    nextChar = cover_pattern[patternIndex+1]
+                    if nextChar == "s":
+                        ataIndex = 0
 
-                        case "a":
-                            dataIndex = 1
+                    elif nextChar == "a":
+                        dataIndex = 1
 
-                        case "l":
-                            dataIndex = 2
+                    elif nextChar == "l":
+                        dataIndex = 2
 
-                        case "%":
-                            if i[fileIndex] == "%":
-                                dataIndex = -1
-                                fileIndex += 1
+                    elif nextChar == "%":
+                        if i[fileIndex] == "%":
+                            dataIndex = -1
+                            fileIndex += 1
 
-                            else:
-                                failed = True
-                                break
+                        else:
+                            failed = True
+                            break
 
                     patternIndex += 2
 

@@ -143,10 +143,9 @@ class PluginManager:
             if PluginInfo.get_enabled(plugin):
                 if os.path.exists(os.path.join(FileHandler.PLUGINS, plugin, "client.py")):
                     # Import dependencies
-                    match PluginInfo.info[plugin]["api_version"]:
-                        case "0.1":
-                            for dependency in PluginInfo.info[plugin]["dependencies"]:
-                                subprocess.check_call([sys.executable, "-m", "pip", "install", dependency])
+                    if PluginInfo.info[plugin]["api_version"] == "0.1":
+                        for dependency in PluginInfo.info[plugin]["dependencies"]:
+                            subprocess.check_call([sys.executable, "-m", "pip", "install", dependency])
                     # Import file, extract class and instantiate it
                     opapi = importlib.import_module("client")
                     payload = cls.payload
