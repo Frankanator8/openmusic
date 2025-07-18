@@ -1,63 +1,17 @@
 import os
 import time
 import win32com.client
-
 from osop.osplayer import OSPlayer
 from osop.filehandler import FileHandler
 from util.playlist import Playlist
 
-# For media session
-from winrt.windows.media import MediaPlaybackType
-from winrt.windows.media.systemmediatransportcontrols import (
-    SystemMediaTransportControls,
-    SystemMediaTransportControlsButton,
-    SystemMediaTransportControlsPlaybackStatus,
-)
 
-class MediaSessionController:
-    def __init__(self, player):
-        self.player = player
-        self.controls = SystemMediaTransportControls.get_for_current_view()
-        self.controls.is_enabled = True
-        self.controls.is_play_enabled = True
-        self.controls.is_pause_enabled = True
-        self.controls.is_next_enabled = True
-        self.controls.is_previous_enabled = True
-        self.controls.button_pressed += self._on_button_pressed
-
-    def _on_button_pressed(self, sender, args):
-        button = args.button
-        if button == SystemMediaTransportControlsButton.play:
-            self.player.toggle_play_pause()
-        elif button == SystemMediaTransportControlsButton.pause:
-            self.player.toggle_play_pause()
-        elif button == SystemMediaTransportControlsButton.next:
-            self.player.next_track()
-        elif button == SystemMediaTransportControlsButton.previous:
-            self.player.previous_track()
-
-    def update_metadata(self):
-        updater = self.controls.display_updater
-        updater.type = MediaPlaybackType.music
-        updater.music_properties.title = self.player.title
-        updater.music_properties.artist = self.player.artist
-        updater.music_properties.album_title = self.player.album
-        updater.update()
-
-        self.controls.playback_status = (
-            SystemMediaTransportControlsPlaybackStatus.playing
-            if not self.player.paused else
-            SystemMediaTransportControlsPlaybackStatus.paused
-        )
-
-
-class WindowsOSPlayer(OSPlayer):
+class WindowsPlayer(OSPlayer):
     def __init__(self):
         super().__init__()
         self.wmp = win32com.client.Dispatch("WMPlayer.OCX")
         self.controls = None
         self.media = None
-        self.media_session = MediaSessionController(self)
 
     def play(self, song_or_playlist):
         if isinstance(song_or_playlist, Playlist):
@@ -76,6 +30,7 @@ class WindowsOSPlayer(OSPlayer):
             print(f"Audio file not found: {audio_path}")
             return False
 
+        # Load metadata
         try:
             with open(os.path.join(FileHandler.SONG_DATA, f"{uid}.txt")) as f:
                 self.title = f.readline().strip()
@@ -94,8 +49,6 @@ class WindowsOSPlayer(OSPlayer):
         self.wmp.controls.play()
         self.controls = self.wmp.controls
         self.paused = False
-
-        self.media_session.update_metadata()
         return True
 
     def toggle_play_pause(self):
@@ -106,7 +59,6 @@ class WindowsOSPlayer(OSPlayer):
         else:
             self.controls.pause()
         self.paused = not self.paused
-        self.media_session.update_metadata()
 
     def seek(self, time):
         if self.controls:
