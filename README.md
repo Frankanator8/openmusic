@@ -7,7 +7,7 @@ Open source music player for Mac and Windows* with plugin and full OS support. B
 ---
 
 ## Features
-- Native OS support (i.e. os playback control) on Mac and Windows*
+- Native OS support (i.e. os playback control) on Mac
 - Support for both Python plugins and QSS stylesheets
 - Everything you need in a music player (song library, playlists, random music shuffle)
 - oh and open source
@@ -39,11 +39,12 @@ Windows:
 ```bash
 py -m venv .venv/
 .venv\Scripts\activate
-pip install PySide6 Pillow moviepy pywin32 winrt openmusic_api
+pip install PySide6 Pillow moviepy pywin32 openmusic_api
 ```
 
 3. Run
 ```bash
+cd src
 python3 main.py
 ```
 
@@ -58,4 +59,4 @@ Please see [CONTRIBUTING.md](https://github.com/Frankanator8/openmusic/blob/main
 Please see the [wiki](https://github.com/Frankanator8/openmusic/wiki)
 
 
-\*Windows support added but not fully tested
+\*Windows native OS playback support not added

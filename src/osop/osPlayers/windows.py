@@ -5,6 +5,12 @@ from osop.osplayer import OSPlayer
 from osop.filehandler import FileHandler
 from util.playlist import Playlist
 
+class A:
+    def __init__(self):
+        self.time = 0
+
+    def currentTime(self):
+        return self.time
 
 class WindowsPlayer(OSPlayer):
     def __init__(self):
@@ -23,6 +29,7 @@ class WindowsPlayer(OSPlayer):
             return self.play_song(song_or_playlist)
 
     def play_song(self, uid):
+        self.player = A()
         self.uid = uid
         audio_path = os.path.join(FileHandler.AUDIOS, f"{uid}.mp3")
 
@@ -89,6 +96,7 @@ class WindowsPlayer(OSPlayer):
                     self.play_song(self.playlist.request_next_track())
                 else:
                     self.paused = True
+            self.player.time = self.controls.currentPosition
 
     def stop(self):
         if self.controls:
@@ -96,3 +104,4 @@ class WindowsPlayer(OSPlayer):
         self.paused = True
         self.controls = None
         self.media = None
+        self.player = None
