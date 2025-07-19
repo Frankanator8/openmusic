@@ -1,6 +1,5 @@
 # OpenMusic
 ![License](https://img.shields.io/github/license/Frankanator8/openmusic)
-![Version](https://img.shields.io/github/v/release/Frankanator8/openmusic)
 
 Open source music player for Mac and Windows* with plugin and full OS support. Built with Python and Qt (PySide6).
 
@@ -14,7 +13,6 @@ Open source music player for Mac and Windows* with plugin and full OS support. B
 
 ---
 ## Installation
-You can find prebuilt binaries/applications in [Releases](https://github.com/Frankanator8/openmusic/releases).
 
 ### To install from source
 Prerequisities:
