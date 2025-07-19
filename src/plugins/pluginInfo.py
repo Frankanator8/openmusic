@@ -118,9 +118,17 @@ class PluginInfo:
             if path.is_dir():
                 shutil.copytree(url, str(os.path.join(FileHandler.PLUGINS, uid)))
 
-            elif path.suffix[0] == ".zip":
+            elif path.suffix == ".zip":
                 with ZipFile(url) as zipped:
                     zipped.extractall(str(os.path.join(FileHandler.PLUGINS, uid)))
+
+                if os.path.isdir(os.path.join(FileHandler.PLUGINS, uid, "__MACOSX")):
+                    for i in os.listdir(str(os.path.join(FileHandler.PLUGINS, uid))):
+                        if i != "__MACOSX" and i != ".DS_Store":
+                            old_uid = uid
+                            uid = Songs.make_uid()
+                            shutil.copytree(str(os.path.join(FileHandler.PLUGINS, old_uid, i)), str(os.path.join(FileHandler.PLUGINS, uid)))
+                            shutil.rmtree(str(os.path.join(FileHandler.PLUGINS, old_uid)))
 
             if cls.is_valid_plugin(uid):
                 cls.to_process.append(uid)

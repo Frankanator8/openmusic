@@ -19,7 +19,6 @@ class FileHandler:
         check = ["audio", "songdata", "playlistdata", "plugins"]
         if not os.path.isdir(FileHandler._app_support_path):
             os.mkdir(FileHandler._app_support_path)
-
         for i in os.listdir(FileHandler._app_support_path):
             if os.path.isdir(os.path.join(FileHandler._app_support_path, i)):
                 if i in check:
