@@ -4,6 +4,9 @@
 Open source music player for Mac and Windows* with plugin and full OS support. Built with Python and Qt (PySide6).
 
 ---
+## Why do I keep this repo pinned?
+
+This was my last passion project that I created without significant AI support. Call it sentimental value, even though this repo isn't all that much important :)
 
 ## Features
 - Native OS support (i.e. os playback control) on Mac
